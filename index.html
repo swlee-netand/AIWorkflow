@@ -3,47 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>자동화 워크플로우</title>
+  <title>AI 업무 자동화 워크플로우</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Noto Sans KR', sans-serif;
-      background: #f6f6f4;
+      background: #f0f2f5;
       color: #1c1c1c;
-      padding: 28px 20px;
+      padding: 32px 20px;
       font-size: 14px;
-      line-height: 1.6;
+      line-height: 1.65;
     }
 
-    .container { max-width: 860px; margin: 0 auto; }
+    .container { max-width: 880px; margin: 0 auto; }
 
-    /* 상단 안내 */
-    .notice {
-      background: #fffbe6;
-      border: 1px solid #f0d060;
-      border-radius: 8px;
-      padding: 12px 16px;
-      font-size: 13px;
-      margin-bottom: 24px;
-      color: #5a4000;
+    /* 헤더 */
+    .page-header {
+      margin-bottom: 28px;
     }
-    .notice strong { color: #3a2a00; }
-
-    /* 자동/수동 구분 배너 */
-    .section-banner {
-      border-radius: 8px;
-      padding: 9px 14px;
-      font-size: 12px;
-      font-weight: 600;
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #111;
       margin-bottom: 6px;
-      margin-top: 2px;
+    }
+    .page-subtitle {
+      font-size: 13px;
+      color: #888;
+    }
+
+    /* 범례 */
+    .legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      padding: 10px 16px;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #e8e8e6;
+      font-size: 12px;
+      color: #555;
+    }
+    .legend-item {
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 5px;
     }
-    .banner-auto  { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
-    .banner-human { background: #fff3e0; color: #bf360c; border: 1px solid #ffe0b2; }
+    .legend-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
 
     /* 진행 현황 */
     .progress-bar-wrap {
@@ -59,8 +70,9 @@
       margin-bottom: 8px;
       display: flex;
       justify-content: space-between;
+      align-items: center;
     }
-    .progress-label span { font-weight: 600; color: #4caf50; }
+    .progress-count { font-weight: 700; color: #4caf50; font-size: 13px; }
     .bar {
       background: #ebebeb;
       border-radius: 99px;
@@ -72,59 +84,66 @@
       width: calc(7 / 13 * 100%);
       background: linear-gradient(90deg, #4caf50, #81c784);
       border-radius: 99px;
-      transition: width 0.4s;
     }
 
-    /* 페이즈 섹션 */
-    .phase { margin-bottom: 20px; }
-
+    /* 페이즈 */
+    .phase { margin-bottom: 24px; }
     .phase-header {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 8px;
+      padding: 0 2px;
     }
-    .phase-dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .phase-title {
-      font-size: 11.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-    }
-    .phase-range {
-      font-size: 11px;
-      color: #aaa;
-      margin-left: auto;
-    }
+    .phase-icon { font-size: 16px; line-height: 1; }
+    .phase-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
+    .phase-range { font-size: 11px; color: #bbb; margin-left: auto; }
 
-    /* 단계별 카드 */
+    /* 섹션 배너 */
+    .section-banner {
+      border-radius: 7px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .banner-auto  { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
+    .banner-human { background: #fff3e0; color: #bf360c; border: 1px solid #ffccbc; }
+
+    /* 단계 카드 */
     .step {
       display: flex;
       gap: 12px;
       padding: 11px 14px;
       background: white;
-      border-radius: 7px;
+      border-radius: 8px;
       margin-bottom: 5px;
-      border: 1px solid #ebebeb;
+      border: 1px solid #e8e8e6;
       align-items: flex-start;
-      transition: box-shadow 0.15s;
+      transition: box-shadow 0.15s, transform 0.1s;
     }
-    .step:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-
+    .step:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.07); transform: translateY(-1px); }
     .step.done    { border-left: 3px solid #4caf50; }
     .step.current { border-left: 3px solid #2196f3; background: #f0f7ff; }
-    .step.todo    { border-left: 3px solid #e0e0e0; }
+    .step.todo    { border-left: 3px solid #ddd; background: #fafafa; }
 
-    .step-num {
-      font-size: 12px;
-      font-weight: 700;
-      color: #bbb;
-      min-width: 20px;
+    .step-icon {
+      font-size: 16px;
+      line-height: 1;
+      min-width: 24px;
       padding-top: 2px;
+      text-align: center;
+    }
+    .step-num {
+      font-size: 11px;
+      font-weight: 700;
+      color: #ccc;
+      min-width: 16px;
+      padding-top: 3px;
+      text-align: right;
     }
     .step.done .step-num    { color: #4caf50; }
     .step.current .step-num { color: #2196f3; }
@@ -133,27 +152,27 @@
 
     .step-title {
       font-size: 13.5px;
-      font-weight: 500;
+      font-weight: 600;
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 7px;
+      color: #222;
     }
+    .step.todo .step-title { color: #888; }
 
     .badge {
-      display: inline-block;
-      font-size: 10.5px;
-      font-weight: 600;
-      padding: 1px 7px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
       border-radius: 99px;
     }
-    .badge-done  { background: #e8f5e9; color: #388e3c; }
-    .badge-now   { background: #e3f2fd; color: #1565c0; }
-    .badge-plan  { background: #f3e5f5; color: #7b1fa2; }
+    .badge-done    { background: #e8f5e9; color: #2e7d32; }
+    .badge-current { background: #e3f2fd; color: #1565c0; }
+    .badge-todo    { background: #f5f5f5; color: #999; border: 1px solid #e0e0e0; }
 
     .step-sub {
-      margin-top: 6px;
-      padding-left: 2px;
+      margin-top: 7px;
     }
     .step-sub li {
       font-size: 12px;
@@ -162,278 +181,310 @@
       padding: 2px 0;
       display: flex;
       align-items: flex-start;
-      gap: 5px;
+      gap: 6px;
     }
-    .step-sub li::before { content: '·'; color: #bbb; flex-shrink: 0; margin-top: 1px; }
+    .step.todo .step-sub li { color: #999; }
+    .step-sub .sub-icon { font-size: 12px; flex-shrink: 0; margin-top: 1px; }
 
-    /* 들여쓰기 서브리스트 */
-    .step-sub .sub-indent {
-      margin-left: 12px;
-      color: #888;
+    /* 하위 인덴트 */
+    .step-sub .indent {
+      padding-left: 18px;
+      font-size: 11.5px;
+      color: #777;
+    }
+    .step-sub .indent::before { content: '└ '; color: #ccc; }
+
+    /* 타입 박스 */
+    .type-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+    .type-box {
+      flex: 1;
+      min-width: 200px;
+      border-radius: 6px;
+      padding: 8px 12px;
       font-size: 11.5px;
     }
-    .step-sub .sub-indent::before { content: '└'; color: #ccc; flex-shrink: 0; margin-top: 1px; }
+    .type-box-title { font-weight: 700; margin-bottom: 3px; font-size: 12px; }
+    .type-box.t1 { background: #e8f5e9; border: 1px solid #c8e6c9; color: #1b5e20; }
+    .type-box.t2 { background: #ede7f6; border: 1px solid #d1c4e9; color: #311b92; }
+    .type-box .types { color: inherit; opacity: 0.85; line-height: 1.8; }
 
-    .tag {
-      display: inline-block;
-      font-size: 10px;
-      font-weight: 600;
-      padding: 1px 6px;
-      border-radius: 3px;
-      white-space: nowrap;
-    }
-    .tag-rag    { background: #e3f2fd; color: #1565c0; }
-    .tag-ai     { background: #f3e5f5; color: #7b1fa2; }
-    .tag-e2e    { background: #e8f5e9; color: #2e7d32; }
-    .tag-mcp    { background: #fff3e0; color: #e65100; }
-    .tag-note   { background: #fafafa; color: #999; border: 1px solid #e0e0e0; }
-    .tag-warn   { background: #fff8e1; color: #f57f17; border: 1px solid #ffe082; }
-    .tag-type1  { background: #e8f5e9; color: #1b5e20; }
-    .tag-type2  { background: #ede7f6; color: #4527a0; }
-    .tag-auto   { background: #e3f2fd; color: #0d47a1; }
-
-    /* 연결선 */
-    .connector {
-      display: flex;
-      justify-content: flex-start;
-      padding-left: 22px;
-      margin: 1px 0;
-    }
-    .connector-line {
-      width: 2px;
-      height: 8px;
-      background: #e0e0e0;
-    }
-
-    /* 인라인 코드 */
-    code {
-      font-family: 'Consolas', 'Monaco', monospace;
-      font-size: 11px;
-      background: #f3f3f3;
+    /* 공통출력 박스 */
+    .output-box {
+      background: #f8f8f8;
       border: 1px solid #e0e0e0;
-      border-radius: 3px;
-      padding: 0 4px;
-      color: #c7254e;
+      border-radius: 7px;
+      padding: 10px 14px;
+      margin: 8px 0 4px;
+      font-size: 12px;
     }
+    .output-box-title { font-weight: 700; color: #444; margin-bottom: 6px; font-size: 12px; }
+    .output-box li { color: #555; padding: 2px 0; display: flex; gap: 6px; }
+    .output-box li .sub-icon { flex-shrink: 0; }
+
+    /* 링크선 */
+    .connector { padding-left: 22px; margin: 1px 0; }
+    .connector-line { width: 2px; height: 7px; background: #e0e0e0; }
+
+    /* 태그 */
+    .tag {
+      font-size: 10px; font-weight: 600;
+      padding: 1px 6px; border-radius: 3px; white-space: nowrap;
+    }
+    .tag-warn { background: #fff8e1; color: #f57f17; border: 1px solid #ffe082; }
+    .tag-todo { background: #fafafa; color: #aaa; border: 1px solid #e0e0e0; }
   </style>
 </head>
 <body>
 <div class="container">
 
-  <!-- 상단 안내 -->
-  <div class="notice">
-    📋 레드마인 이슈를 <strong>커스텀 유형 10종으로 자동 분류</strong>하고, 유형별 전략(Type1 / Type2)으로
-    영향도를 AI 분석하는 자동화 파이프라인
-    — 검증된 서버 구현 기준 (2026-05-15)
+  <!-- 헤더 -->
+  <div class="page-header">
+    <div class="page-title">🏭 AI 업무 자동화 워크플로우</div>
+    <div class="page-subtitle">넷앤드 Redmine 이슈 처리 자동화 파이프라인 — 2026-05-15 기준</div>
+  </div>
+
+  <!-- 범례 -->
+  <div class="legend">
+    <div class="legend-item"><span>✅</span> 구현 완료</div>
+    <div class="legend-item"><span>🔄</span> 현재 진행 지점</div>
+    <div class="legend-item"><span>⬜</span> 미구현 (예정)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#1976d2"></div> Phase 1 — RAG / 데이터</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#8e24aa"></div> Phase 2 — AI 분석</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#2e7d32"></div> Phase 3 — 테스트</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#e65100"></div> Phase 4 — MCP</div>
   </div>
 
   <!-- 진행 현황 바 -->
   <div class="progress-bar-wrap">
     <div class="progress-label">
-      전체 진행 현황 (2026-05-15 기준)
-      <span>7 / 13 단계 완료</span>
+      전체 진행 현황
+      <span class="progress-count">7 / 13 단계 완료</span>
     </div>
     <div class="bar"><div class="bar-fill"></div></div>
   </div>
 
-  <!-- Phase 1: RAG / 데이터 -->
+  <!-- ═══ Phase 1 ═══ -->
   <div class="phase">
     <div class="phase-header">
-      <div class="phase-dot" style="background:#1976d2"></div>
-      <div class="phase-title" style="color:#1976d2">RAG 파이프라인 및 데이터 전처리 · 데이터 / 검색</div>
+      <div class="phase-icon">🔵</div>
+      <div class="phase-title" style="color:#1976d2">Phase 1 · RAG 파이프라인 및 데이터 전처리</div>
       <div class="phase-range">1 – 7</div>
     </div>
 
-    <!-- 자동 섹션 -->
-    <div class="section-banner banner-auto">🤖 백그라운드 자동 수행 (사용자 개입 없음)</div>
+    <div class="section-banner banner-auto">🤖 백그라운드 자동 수행 — 사용자 개입 없이 스케줄러가 처리</div>
 
+    <!-- Step 1 -->
     <div class="step done">
+      <div class="step-icon">✅</div>
       <div class="step-num">1</div>
       <div class="step-body">
-        <div class="step-title">
-          레드마인 이슈 자동 수집
-          <span class="tag tag-auto">APScheduler</span>
-        </div>
+        <div class="step-title">레드마인 이슈 자동 수집</div>
         <ul class="step-sub">
-          <li>30분 간격 자동 실행 — <code>scheduler.py</code></li>
-          <li>증분 수집: <code>last_sync_at</code> 기준 + 72시간 안전 마진 (<code>min(last_sync_at, now−72h)</code>)</li>
-          <li>담당자명 → Redmine user ID 자동 변환 (DB 캐시 → Redmine API fallback)</li>
-          <li>기존 이슈 상태 변경도 <code>update_existing_issues()</code>로 자동 반영</li>
+          <li><span class="sub-icon">⏱️</span> 30분 간격으로 자동 실행</li>
+          <li><span class="sub-icon">📥</span> 마지막 동기화 시점 이후 변경된 이슈만 증분 수집 (72시간 안전 마진 적용)</li>
+          <li><span class="sub-icon">👤</span> 담당자 이름으로 Redmine 계정을 자동 조회 (내부 캐시 → API 순서로 확인)</li>
+          <li><span class="sub-icon">🔄</span> 기존 이슈의 담당자 변경·상태 변경도 자동으로 반영</li>
         </ul>
       </div>
     </div>
 
+    <!-- Step 2 -->
     <div class="step done">
+      <div class="step-icon">✅</div>
       <div class="step-num">2</div>
       <div class="step-body">
-        <div class="step-title">
-          커스텀 유형 자동 분류 + 영향도 전략 결정
-          <span class="tag tag-rag">분류기</span>
-        </div>
+        <div class="step-title">커스텀 유형 분류 + 영향도 전략 결정</div>
         <ul class="step-sub">
-          <li>2단계 분류: ① 기능구분 필드(Redmine CF id=158) 1차 힌트 → ② 키워드 매칭 2차</li>
-          <li>
-            <span class="tag tag-type1">Type 1 — 커스텀 독립</span>
-            &nbsp;<code>ums_sync</code> · <code>ums_custom</code> · <code>hr_sync</code> · <code>resource_sync</code>
-          </li>
-          <li>
-            <span class="tag tag-type2">Type 2 — 표준+커스텀 연동</span>
-            &nbsp;<code>sso</code> · <code>apv_sync</code> · <code>apv_custom</code> · <code>report_custom</code> · <code>menu_custom</code> · <code>external_api</code>
-          </li>
-          <li>mixed 이슈 → Type 2 우선 적용 (<code>decide_impact_strategy()</code>)</li>
+          <li><span class="sub-icon">🏷️</span> 2단계 분류: ① 레드마인 기능구분 필드 우선 확인 → ② 제목·설명 키워드 매칭 보완</li>
+        </ul>
+        <div class="type-row">
+          <div class="type-box t1">
+            <div class="type-box-title">Type 1 — 독립 커스텀</div>
+            <div class="types">ums_sync · ums_custom<br>hr_sync · resource_sync</div>
+          </div>
+          <div class="type-box t2">
+            <div class="type-box-title">Type 2 — 표준+커스텀 연동</div>
+            <div class="types">sso · apv_sync · apv_custom<br>report_custom · menu_custom · external_api</div>
+          </div>
+        </div>
+        <ul class="step-sub" style="margin-top:6px;">
+          <li><span class="sub-icon">⚖️</span> 두 유형이 섞인 이슈는 Type 2 전략 우선 적용</li>
         </ul>
       </div>
     </div>
 
+    <!-- Step 3 -->
     <div class="step done">
+      <div class="step-icon">✅</div>
       <div class="step-num">3</div>
       <div class="step-body">
-        <div class="step-title">
-          pgvector 임베딩 생성
-          <span class="tag tag-rag">RAG / 검색</span>
-        </div>
+        <div class="step-title">pgvector 임베딩 생성</div>
         <ul class="step-sub">
-          <li>sentence-transformers 모델 사용 (<code>/models/</code>)</li>
-          <li>최대 500건 배치 처리 — <code>generate_embeddings_batch()</code></li>
-          <li>PostgreSQL 15 + pgvector 저장 → 유사 이슈 검색에 활용</li>
+          <li><span class="sub-icon">🧬</span> 임베딩 모델로 이슈 텍스트를 벡터로 변환, 최대 500건씩 배치 처리</li>
+          <li><span class="sub-icon">🗄️</span> PostgreSQL + pgvector에 저장 → 유사 이슈 검색에 활용</li>
         </ul>
       </div>
     </div>
 
-    <!-- 사용자 액션 섹션 -->
-    <div class="section-banner banner-human" style="margin-top:12px;">👤 사용자 액션 시작</div>
+    <div class="section-banner banner-human" style="margin-top:10px;">👤 사용자 액션 시작 — 개발자가 대시보드에서 직접 수행</div>
 
+    <!-- Step 4 -->
     <div class="step done">
+      <div class="step-icon">✅</div>
       <div class="step-num">4</div>
       <div class="step-body">
         <div class="step-title">대시보드 접속 → 이슈 선택 → 분류 결과 확인</div>
         <ul class="step-sub">
-          <li>어떤 사이트 / 커스텀 유형 / 영향도 전략인지 확인</li>
+          <li><span class="sub-icon">📋</span> 업무 유형 / 커스텀 유형 / AS-IS·TO-BE 버전 / 영향도 전략 확인</li>
         </ul>
       </div>
     </div>
 
+    <!-- Step 5 -->
     <div class="step done">
+      <div class="step-icon">✅</div>
       <div class="step-num">5</div>
       <div class="step-body">
-        <div class="step-title">GitLab 프로젝트 자동 탐색 (3단계 fallback)</div>
+        <div class="step-title">GitLab 프로젝트 자동 탐색 — 3단계 순차 검색</div>
         <ul class="step-sub">
-          <li><strong>Stage 1</strong> — GITLAB_NAMING 패턴으로 직접 경로 조회 (<code>resolver.py</code>)</li>
-          <li><strong>Stage 2</strong> — 그룹 내 키워드 검색</li>
-          <li><strong>Stage 3</strong> — 루트 그룹 전체 검색</li>
-          <li>3단계 모두 실패 시 → UI에서 개발자가 수동 입력</li>
-          <li>표준 모듈 경로는 커스텀 유형별 매핑 테이블에서 자동 결정</li>
+          <li><span class="sub-icon">🔍</span> 1단계: 명명 규칙으로 직접 경로 접근 시도</li>
+          <li><span class="sub-icon">🔍</span> 2단계: 그룹 내 키워드 검색</li>
+          <li><span class="sub-icon">🔍</span> 3단계: 루트 그룹 전체 검색</li>
+          <li><span class="sub-icon">⚠️</span> 3단계 모두 실패 시 → 개발자가 UI에서 수동 경로 입력</li>
         </ul>
       </div>
     </div>
 
+    <!-- Step 6 -->
     <div class="step done">
+      <div class="step-icon">✅</div>
       <div class="step-num">6</div>
       <div class="step-body">
-        <div class="step-title">커스텀 프로젝트가 없을 경우 사용자에게 신규 생성 질의</div>
+        <div class="step-title">커스텀 프로젝트 없을 경우 신규 생성 여부 확인</div>
       </div>
     </div>
 
+    <!-- Step 7 (current) -->
     <div class="step current">
+      <div class="step-icon">🔄</div>
       <div class="step-num">7</div>
       <div class="step-body">
         <div class="step-title">
-          분석 시작 — 커스텀·표준 코드 + 레드마인 일감 + 유사 일감 N개 → Claude 토스
-          <span class="badge badge-now">✅ 여기까지 완료</span>
+          컨텍스트 조합 → Claude 분석 시작
+          <span class="badge badge-current">현재 진행 지점</span>
         </div>
         <ul class="step-sub">
-          <li><span class="tag tag-rag">RAG / 검색</span> pgvector 유사 이슈 검색 (같은 커스텀 유형 기준)</li>
-          <li>분석 버튼 클릭 → 유형별 전략(Type1 / Type2) 자동 실행</li>
+          <li><span class="sub-icon">📦</span> 커스텀·표준 소스 위치 + 레드마인 일감 + pgvector 유사 일감 N개를 한 번에 전달</li>
+          <li><span class="sub-icon">🤖</span> 분석 버튼 클릭 → 커스텀 유형에 따라 Type 1 또는 Type 2 경로로 자동 분기</li>
         </ul>
       </div>
     </div>
   </div>
 
-  <!-- Phase 2: AI 에이전트 -->
+  <!-- ═══ Phase 2 ═══ -->
   <div class="phase">
     <div class="phase-header">
-      <div class="phase-dot" style="background:#8e24aa"></div>
-      <div class="phase-title" style="color:#8e24aa">AI 에이전트 및 자동화 코드 · AI / 실행</div>
+      <div class="phase-icon">🟣</div>
+      <div class="phase-title" style="color:#8e24aa">Phase 2 · AI 영향도 분석 및 코드 자동화</div>
       <div class="phase-range">8 – 10</div>
     </div>
 
+    <!-- Step 8 -->
     <div class="step todo">
+      <div class="step-icon">⬜</div>
       <div class="step-num">8</div>
       <div class="step-body">
-        <div class="step-title">
-          영향도 분석 실행 (Type 1 / Type 2)
-          <span class="tag tag-ai">AI / 실행</span>
+        <div class="step-title">영향도 분석 실행 (Type 1 / Type 2 분기)</div>
+        <div class="type-row">
+          <div class="type-box t1">
+            <div class="type-box-title">🔵 Type 1 — 독립 커스텀</div>
+            <ul class="step-sub" style="margin:4px 0 0;">
+              <li><span class="sub-icon">①</span> 표준 AS-IS / TO-BE 버전 코드 로컬 캐시 확보</li>
+              <li><span class="sub-icon">②</span> 표준 AS-IS → TO-BE 변경 diff 생성</li>
+              <li><span class="sub-icon">③</span> 커스텀 AS-IS 코드 캐시 확보</li>
+              <li><span class="sub-icon">④</span> 표준 AS-IS와 커스텀 AS-IS를 비교해 커스텀 수정 패치(delta) 추출</li>
+              <li><span class="sub-icon">⑤</span> 관련 코드 블록만 선별 (200KB 상한 적용)</li>
+              <li><span class="sub-icon">⑥</span> Claude 분석 → 이식 시 충돌 지점 + 수정 계획</li>
+            </ul>
+          </div>
+          <div class="type-box t2">
+            <div class="type-box-title">🟣 Type 2 — 표준+커스텀 연동</div>
+            <ul class="step-sub" style="margin:4px 0 0;">
+              <li><span class="sub-icon">①</span> 커스텀 프로젝트 전체 커밋 이력을 패치 형태로 추출</li>
+              <li><span class="sub-icon">②</span> TO-BE 표준 코드 캐시 확보</li>
+              <li><span class="sub-icon">③</span> Claude 분석 → 커밋 이력 + TO-BE 표준 기준으로 재적용 충돌 지점 + 가이드 도출</li>
+              <li><span class="sub-icon">⚠️</span> 항상 수동 재적용 필요</li>
+            </ul>
+          </div>
         </div>
-        <ul class="step-sub">
-          <li>
-            <span class="tag tag-type1">Type 1</span>
-            — 커스텀 코드가 표준과 독립된 경우
-          </li>
-          <li class="sub-indent">① 표준 AS-IS 코드 캐시 확보 (git 태그 기반)</li>
-          <li class="sub-indent">② 표준 AS-IS → TO-BE diff 생성</li>
-          <li class="sub-indent">③ 커스텀 AS-IS 코드 캐시 확보</li>
-          <li class="sub-indent">④ <code>diff --no-index</code>(표준 AS-IS, 커스텀 AS-IS) → 커스텀 패치 추출</li>
-          <li class="sub-indent">⑤ 식별자 기반 hunk 선별 (최대 200KB) — <code>diff_extractor.py</code></li>
-          <li class="sub-indent">⑥ Claude 분석 (3회 retry)</li>
-          <li style="margin-top:4px;">
-            <span class="tag tag-type2">Type 2</span>
-            — 표준 + 커스텀 연동 (apv, sso 등)
-          </li>
-          <li class="sub-indent">① 커스텀 프로젝트 git log <code>--patches</code> 수집 (커밋 시퀀스)</li>
-          <li class="sub-indent">② TO-BE 표준 코드 캐시 확보</li>
-          <li class="sub-indent">③ Claude 분석 (200KB×2 사이즈 조정)</li>
-          <li style="margin-top:4px; color:#555;">공통 출력:</li>
-          <li class="sub-indent">risk_score / risk_level (low·medium·high) + findings</li>
-          <li class="sub-indent">Redmine 댓글 초안 자동 생성</li>
-          <li class="sub-indent">JDK 21 마이그레이션 경고 자동 주입 (버전 14 PKG 이상)</li>
-          <li class="sub-indent">판단 불가 시 → <code>action_required=True</code> + 사유 표시</li>
-        </ul>
+        <div class="output-box">
+          <div class="output-box-title">📋 공통 출력 결과</div>
+          <ul>
+            <li><span class="sub-icon">🎯</span> 위험도 판정: <span style="color:#2e7d32;font-weight:600;">낮음</span> / <span style="color:#e65100;font-weight:600;">중간</span> / <span style="color:#c62828;font-weight:600;">높음</span> + 충돌 지점 목록 + 수정 계획</li>
+            <li><span class="sub-icon">💬</span> Redmine 댓글 초안 자동 생성</li>
+            <li><span class="sub-icon">⚠️</span> JDK 21 마이그레이션 주의사항 자동 추가 (대상 버전 이상인 경우)</li>
+            <li><span class="sub-icon">❌</span> 커스텀 코드 미확보 등 치명적 오류 → "판단 불가" 처리</li>
+          </ul>
+        </div>
       </div>
     </div>
 
+    <!-- Step 9 -->
     <div class="step todo">
+      <div class="step-icon">⬜</div>
       <div class="step-num">9</div>
       <div class="step-body">
-        <div class="step-title">diff 결과 표시 → 개발자 검토 후 수락</div>
+        <div class="step-title">분석 결과 표시 → 개발자 검토 후 수락</div>
         <ul class="step-sub">
-          <li>어떤 소스를 어떻게 수정할지 diff 형태로 대시보드에 표시</li>
-          <li>개발자가 프롬프트 추가 입력 가능 (의견)</li>
-          <li>수락 후 개발 진행</li>
+          <li><span class="sub-icon">🖥️</span> 어떤 파일을 어떻게 수정할지 diff 형태로 대시보드에 표시</li>
+          <li><span class="sub-icon">✏️</span> 개발자가 프롬프트를 추가로 입력하여 재분석 요청 가능 (예정)</li>
+          <li><span class="sub-icon">✅</span> 수락 후 개발 진행</li>
         </ul>
       </div>
     </div>
 
+    <!-- Step 10 -->
     <div class="step todo">
+      <div class="step-icon">⬜</div>
       <div class="step-num">10</div>
       <div class="step-body">
-        <div class="step-title">개발된 코드 확인 → git 커밋</div>
+        <div class="step-title">개발된 코드 최종 확인 → git 커밋</div>
         <ul class="step-sub">
-          <li>개발자가 최종 확인 후 커밋</li>
+          <li><span class="sub-icon">👁️</span> 개발자가 변경 내용을 직접 검토 후 커밋</li>
         </ul>
       </div>
     </div>
   </div>
 
-  <!-- Phase 3: E2E 테스트 -->
+  <!-- ═══ Phase 3 ═══ -->
   <div class="phase">
     <div class="phase-header">
-      <div class="phase-dot" style="background:#2e7d32"></div>
-      <div class="phase-title" style="color:#2e7d32">E2E 테스트 및 수정 계획 · CI/CD 인프라 / 사용자 경험</div>
+      <div class="phase-icon">🟢</div>
+      <div class="phase-title" style="color:#2e7d32">Phase 3 · E2E 테스트 및 CI/CD</div>
       <div class="phase-range">11 – 12</div>
     </div>
 
+    <!-- Step 11 -->
     <div class="step todo">
+      <div class="step-icon">⬜</div>
       <div class="step-num">11</div>
       <div class="step-body">
-        <div class="step-title">CI/CD — 빌드 및 테스트</div>
+        <div class="step-title">빌드 및 자동화 테스트</div>
         <ul class="step-sub">
-          <li>E2E 혹은 JUnit <span class="tag tag-note">JUnit 테스트 성공 시 E2E 스킵 가능</span></li>
-          <li>도커 인프라에 패치 및 재시작 후 테스트</li>
+          <li><span class="sub-icon">🔨</span> CI/CD 파이프라인에서 빌드 후 JUnit 단위 테스트 실행</li>
+          <li><span class="sub-icon">🐳</span> 도커 인프라에 패치 배포 후 재시작 → E2E 테스트 (JUnit 통과 시 스킵 가능)</li>
         </ul>
       </div>
     </div>
 
+    <!-- Step 12 -->
     <div class="step todo">
+      <div class="step-icon">⬜</div>
       <div class="step-num">12</div>
       <div class="step-body">
         <div class="step-title">테스트 통과 → 완료</div>
@@ -441,23 +492,24 @@
     </div>
   </div>
 
-  <!-- Phase 4: MCP Server -->
+  <!-- ═══ Phase 4 ═══ -->
   <div class="phase">
     <div class="phase-header">
-      <div class="phase-dot" style="background:#e65100"></div>
-      <div class="phase-title" style="color:#e65100">MCP Server · API / 연동</div>
+      <div class="phase-icon">🟠</div>
+      <div class="phase-title" style="color:#e65100">Phase 4 · MCP Server 연동</div>
       <div class="phase-range">13</div>
     </div>
 
+    <!-- Step 13 -->
     <div class="step todo">
+      <div class="step-icon">⬜</div>
       <div class="step-num">13</div>
       <div class="step-body">
-        <div class="step-title">레드마인 댓글 작성 + 배포 메일 발송</div>
+        <div class="step-title">레드마인 댓글 자동 등록 + 배포 메일 발송</div>
         <ul class="step-sub">
-          <li>AI 분석 결과로 생성된 Redmine 댓글 초안 → MCP로 자동 등록</li>
-          <li>대시보드 로그인 사용자 정보 기반으로 메일 발송</li>
-          <li><span class="tag tag-mcp">MCP Server</span> MCP에 위임하여 처리</li>
-          <li>구글 드라이브 DML → MCP로 읽어 테이블 구조 확인 가능 (검토 중) <span class="tag tag-warn">TODO</span></li>
+          <li><span class="sub-icon">📝</span> AI 분석 결과로 생성된 Redmine 댓글 초안을 MCP를 통해 자동 등록</li>
+          <li><span class="sub-icon">📧</span> 로그인한 사용자 계정 정보로 배포 완료 메일 발송</li>
+          <li><span class="sub-icon">📊</span> 구글 드라이브 DML을 MCP로 읽어 테이블 구조 자동 확인 <span class="tag tag-warn">검토 중</span></li>
         </ul>
       </div>
     </div>
