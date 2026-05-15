@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>자동화 워크플로우</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Noto Sans KR', sans-serif;
+      background: #f6f6f4;
+      color: #1c1c1c;
+      padding: 28px 20px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .container { max-width: 820px; margin: 0 auto; }
+
+    /* 상단 안내 */
+    .notice {
+      background: #fffbe6;
+      border: 1px solid #f0d060;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      margin-bottom: 24px;
+      color: #5a4000;
+    }
+    .notice strong { color: #3a2a00; }
+
+    /* 진행 현황 */
+    .progress-bar-wrap {
+      background: white;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      border: 1px solid #e8e8e6;
+    }
+    .progress-label {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .progress-label span { font-weight: 600; color: #4caf50; }
+    .bar {
+      background: #ebebeb;
+      border-radius: 99px;
+      height: 8px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      width: calc(7 / 13 * 100%);
+      background: linear-gradient(90deg, #4caf50, #81c784);
+      border-radius: 99px;
+      transition: width 0.4s;
+    }
+
+    /* 페이즈 섹션 */
+    .phase { margin-bottom: 20px; }
+
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .phase-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .phase-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .phase-range {
+      font-size: 11px;
+      color: #aaa;
+      margin-left: auto;
+    }
+
+    /* 단계별 카드 */
+    .step {
+      display: flex;
+      gap: 12px;
+      padding: 11px 14px;
+      background: white;
+      border-radius: 7px;
+      margin-bottom: 5px;
+      border: 1px solid #ebebeb;
+      align-items: flex-start;
+      transition: box-shadow 0.15s;
+    }
+    .step:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+
+    .step.done { border-left: 3px solid #4caf50; }
+    .step.current { border-left: 3px solid #2196f3; background: #f0f7ff; }
+    .step.todo { border-left: 3px solid #e0e0e0; }
+
+    .step-num {
+      font-size: 12px;
+      font-weight: 700;
+      color: #bbb;
+      min-width: 20px;
+      padding-top: 2px;
+    }
+    .step.done .step-num { color: #4caf50; }
+    .step.current .step-num { color: #2196f3; }
+
+    .step-body { flex: 1; }
+
+    .step-title {
+      font-size: 13.5px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 1px 7px;
+      border-radius: 99px;
+    }
+    .badge-done   { background: #e8f5e9; color: #388e3c; }
+    .badge-now    { background: #e3f2fd; color: #1565c0; }
+    .badge-plan   { background: #f3e5f5; color: #7b1fa2; }
+
+    .step-sub {
+      margin-top: 5px;
+      padding-left: 2px;
+    }
+    .step-sub li {
+      font-size: 12px;
+      color: #666;
+      list-style: none;
+      padding: 1px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 5px;
+    }
+    .step-sub li::before { content: '·'; color: #bbb; flex-shrink: 0; margin-top: 1px; }
+
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+    .tag-rag  { background: #e3f2fd; color: #1565c0; }
+    .tag-ai   { background: #f3e5f5; color: #7b1fa2; }
+    .tag-e2e  { background: #e8f5e9; color: #2e7d32; }
+    .tag-mcp  { background: #fff3e0; color: #e65100; }
+    .tag-note { background: #fafafa; color: #999; border: 1px solid #e0e0e0; }
+
+    /* 연결선 */
+    .connector {
+      display: flex;
+      justify-content: flex-start;
+      padding-left: 22px;
+      margin: 1px 0;
+    }
+    .connector-line {
+      width: 2px;
+      height: 8px;
+      background: #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- 상단 안내 -->
+  <div class="notice">
+    📋 레드마인에서 이슈를 가져올 때 <strong>커스텀 유형 분류</strong>해서 가져옴
+    — RAG 파이프라인 및 데이터 전처리 선행 작업
+  </div>
+
+  <!-- 진행 현황 바 -->
+  <div class="progress-bar-wrap">
+    <div class="progress-label">
+      전체 진행 현황 (2026-05-15 기준)
+      <span>7 / 13 단계 완료</span>
+    </div>
+    <div class="bar"><div class="bar-fill"></div></div>
+  </div>
+
+  <!-- Phase 1: RAG -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-dot" style="background:#1976d2"></div>
+      <div class="phase-title" style="color:#1976d2">RAG 파이프라인 및 데이터 전처리 · 데이터 / 검색</div>
+      <div class="phase-range">1 – 7</div>
+    </div>
+
+    <div class="step done">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">대시보드 접속</div>
+      </div>
+    </div>
+
+    <div class="step done">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">개발할 혹은 검토할 이슈를 선택</div>
+      </div>
+    </div>
+
+    <div class="step done">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">분석 시작 버튼을 누른다</div>
+      </div>
+    </div>
+
+    <div class="step done">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">어떤 유형인지, 어떤 고객사인지, 어떤 일감인지 확인</div>
+      </div>
+    </div>
+
+    <div class="step done">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-title">고객사 + 커스텀 유형에 따라 git 프로젝트 찾기</div>
+        <ul class="step-sub">
+          <li>연관된 표준 프로젝트가 있으면 그것도 같이 찾기</li>
+          <li>커스텀 기능 네이밍 규칙 수립 필요 <span class="tag tag-note">TODO</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step done">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <div class="step-title">커스텀 프로젝트가 없을 경우 사용자에게 신규 생성 질의</div>
+      </div>
+    </div>
+
+    <div class="step current">
+      <div class="step-num">7</div>
+      <div class="step-body">
+        <div class="step-title">
+          커스텀 위치 + 표준 위치 + 레드마인 일감 + 유사 일감 N개 포함해서 Claude에게 토스
+          <span class="badge badge-now">✅ 여기까지 완료</span>
+        </div>
+        <ul class="step-sub">
+          <li><span class="tag tag-rag">RAG / 검색</span> pgvector 유사 이슈 검색 포함</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 2: AI 에이전트 -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-dot" style="background:#8e24aa"></div>
+      <div class="phase-title" style="color:#8e24aa">AI 에이전트 및 자동화 코드 · AI / 실행</div>
+      <div class="phase-range">8 – 10</div>
+    </div>
+
+    <div class="step todo">
+      <div class="step-num">8</div>
+      <div class="step-body">
+        <div class="step-title">Claude가 판단</div>
+        <ul class="step-sub">
+          <li>가능하면: 어떤 소스를 어떻게 수정할지 diff 만들어서 사용자에게 표시</li>
+          <li><span class="tag tag-ai">AI / 실행</span> → <span class="tag tag-e2e">기획 / 검증</span> 과제로 전달 → 테스트 시나리오를 대시보드로 전달</li>
+          <li>불가능하면: 재분석 요청 / 사람이 직접 / 재협의 등 — 이건 나중</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step todo">
+      <div class="step-num">9</div>
+      <div class="step-body">
+        <div class="step-title">diff 나온 걸 개발자가 보고 수락하면 개발 진행</div>
+        <ul class="step-sub">
+          <li>의견) 프롬프트를 개발자가 추가로 기입할 수 있는 기능</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step todo">
+      <div class="step-num">10</div>
+      <div class="step-body">
+        <div class="step-title">개발된 코드를 개발자가 확인하는 단계</div>
+        <ul class="step-sub">
+          <li>git 커밋</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 3: E2E 테스트 -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-dot" style="background:#2e7d32"></div>
+      <div class="phase-title" style="color:#2e7d32">E2E 테스트 및 수정 계획 · CI/CD 인프라 / 사용자 경험</div>
+      <div class="phase-range">11 – 12</div>
+    </div>
+
+    <div class="step todo">
+      <div class="step-num">11</div>
+      <div class="step-body">
+        <div class="step-title">CI/CD 쪽에서 빌드 및 테스트</div>
+        <ul class="step-sub">
+          <li>E2E 혹은 JUnit <span class="tag tag-note">Junit 테스트 중 — 성공시 E2E 스킵 가능</span></li>
+          <li>도커 인프라에 패치 및 재시작하여 테스트</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step todo">
+      <div class="step-num">12</div>
+      <div class="step-body">
+        <div class="step-title">테스트 통과하면 완료</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 4: MCP -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-dot" style="background:#e65100"></div>
+      <div class="phase-title" style="color:#e65100">MCP Server · API / 연동</div>
+      <div class="phase-range">13</div>
+    </div>
+
+    <div class="step todo">
+      <div class="step-num">13</div>
+      <div class="step-body">
+        <div class="step-title">레드마인 작성 및 배포 메일</div>
+        <ul class="step-sub">
+          <li>대시보드 로그인 사용자 정보로 레드마인 및 메일 발송</li>
+          <li><span class="tag tag-mcp">MCP Server</span> MCP에 보내서 진행</li>
+          <li>구글 드라이브 DML → MCP로 읽어서 테이블 구조 확인 가능 검토 중</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
