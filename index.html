@@ -81,7 +81,7 @@
     }
     .bar-fill {
       height: 100%;
-      width: calc(7 / 13 * 100%);
+      width: calc(8 / 13 * 100%);
       background: linear-gradient(90deg, #4caf50, #81c784);
       border-radius: 99px;
     }
@@ -237,6 +237,64 @@
     }
     .tag-warn { background: #fff8e1; color: #f57f17; border: 1px solid #ffe082; }
     .tag-todo { background: #fafafa; color: #aaa; border: 1px solid #e0e0e0; }
+
+    /* ── 도식 (diagram-design v2.6: 자체 완결 SVG · 그림자 없음 · grid 4) ── */
+    .figure {
+      background: white;
+      border: 1px solid #e8e8e6;
+      border-radius: 8px;
+      padding: 18px 20px 14px;
+      margin-bottom: 14px;
+    }
+    .fig-eyebrow {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 8px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 2px;
+    }
+    .fig-title { font-size: 13px; font-weight: 700; color: #1c1c1c; margin-bottom: 12px; }
+    .figure svg { display: block; width: 100%; height: auto; }
+    .fig-note {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(28,28,28,0.12);
+      font-size: 12px;
+      color: #555;
+      line-height: 1.75;
+    }
+
+    /* 수식 — LaTeX 를 빌드 시점에 MathML 로 변환해 심었다(외부 스크립트 없음) */
+    .tex math { color: #1c1c1c; font-size: 1.05em; }
+    .formula {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 7px 0;
+    }
+    .formula + .formula { border-top: 1px dashed rgba(28,28,28,0.12); }
+    .formula-tag {
+      flex: none;
+      min-width: 52px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: #888;
+      text-transform: uppercase;
+    }
+    .formula-cap { font-size: 12px; color: #555; }
+    .inline-tex {
+      display: inline-flex;
+      align-items: baseline;
+      padding: 0 6px;
+      background: #fafafa;
+      border: 1px solid rgba(28,28,28,0.12);
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
@@ -245,13 +303,13 @@
   <!-- 헤더 -->
   <div class="page-header">
     <div class="page-title">🏭 AI 업무 자동화 워크플로우</div>
-    <div class="page-subtitle">넷앤드 Redmine 이슈 처리 자동화 파이프라인 — 2026-05-15 기준</div>
+    <div class="page-subtitle">넷앤드 Redmine 이슈 처리 자동화 파이프라인 — 2026-08-21 기준</div>
   </div>
 
   <!-- 범례 -->
   <div class="legend">
     <div class="legend-item"><span>✅</span> 구현 완료</div>
-    <div class="legend-item"><span>🔄</span> 현재 진행 지점</div>
+    <div class="legend-item"><span>🔄</span> 부분 가동</div>
     <div class="legend-item"><span>⬜</span> 미구현 (예정)</div>
     <div class="legend-item"><div class="legend-dot" style="background:#1976d2"></div> Phase 1 — RAG / 데이터</div>
     <div class="legend-item"><div class="legend-dot" style="background:#8e24aa"></div> Phase 2 — AI 분석</div>
@@ -263,9 +321,29 @@
   <div class="progress-bar-wrap">
     <div class="progress-label">
       전체 진행 현황
-      <span class="progress-count">7 / 13 단계 완료</span>
+      <span class="progress-count">8 완료 · 4 부분 가동 · 1 미구현</span>
     </div>
     <div class="bar"><div class="bar-fill"></div></div>
+  </div>
+
+  <!-- ═══ 도식 ═══ -->
+  <div class="figure">
+    <div class="fig-eyebrow">figure 1 · swimlane</div>
+    <div class="fig-title">사람이 멈춰 세우는 두 지점 — 13단계를 담당 주체로 보면</div>
+    <svg viewBox="0 0 820 232" role="img" aria-label="자동 레인과 사람 레인으로 나눈 6구간 파이프라인 스윔레인 도식"><defs><marker id="ar1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#555"/></marker></defs><line x1="0" y1="32" x2="820" y2="32" stroke="rgba(28,28,28,0.12)" stroke-width="1"/><line x1="0" y1="120" x2="820" y2="120" stroke="rgba(28,28,28,0.12)" stroke-width="1"/><line x1="0" y1="208" x2="820" y2="208" stroke="rgba(28,28,28,0.12)" stroke-width="1"/><line x1="96" y1="32" x2="96" y2="208" stroke="rgba(28,28,28,0.12)" stroke-width="1"/><text x="48" y="80" text-anchor="middle" font-size="10" font-weight="600" fill="#888">자동</text><text x="48" y="168" text-anchor="middle" font-size="10" font-weight="600" fill="#888">사람</text><rect x="128" y="8" width="48" height="16" rx="8" fill="#ffffff" stroke="rgba(28,28,28,0.20)" stroke-width="0.8"/><text x="152" y="20" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="9" font-weight="600" fill="#888">1–3</text><rect x="104" y="52" width="96" height="48" rx="6" fill="#ffffff" stroke="#1c1c1c" stroke-width="1"/><text x="152" y="72" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">수집 · 분류</text><text x="152" y="88" text-anchor="middle" font-size="10" fill="#888">30분 주기</text><rect x="244" y="8" width="48" height="16" rx="8" fill="#ffffff" stroke="rgba(28,28,28,0.20)" stroke-width="0.8"/><text x="268" y="20" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="9" font-weight="600" fill="#888">4–6</text><rect x="220" y="52" width="96" height="48" rx="6" fill="#ffffff" stroke="#1c1c1c" stroke-width="1"/><text x="268" y="72" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">소스 확보</text><text x="268" y="88" text-anchor="middle" font-size="10" fill="#888">GitLab 탐색</text><rect x="360" y="8" width="48" height="16" rx="8" fill="#e3f2fd" stroke="#1565c0" stroke-width="0.8"/><text x="384" y="20" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="9" font-weight="600" fill="#1565c0">7</text><rect x="336" y="140" width="96" height="48" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.2"/><text x="384" y="160" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">인터뷰 선택</text><text x="384" y="176" text-anchor="middle" font-size="10" fill="#888">모호함 정리</text><rect x="476" y="8" width="48" height="16" rx="8" fill="#ffffff" stroke="rgba(28,28,28,0.20)" stroke-width="0.8"/><text x="500" y="20" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="9" font-weight="600" fill="#888">8</text><rect x="452" y="52" width="96" height="48" rx="6" fill="#ffffff" stroke="#1c1c1c" stroke-width="1"/><text x="500" y="72" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">영향도 분석</text><text x="500" y="88" text-anchor="middle" font-size="10" fill="#888">상태 그래프</text><rect x="592" y="8" width="48" height="16" rx="8" fill="#e3f2fd" stroke="#1565c0" stroke-width="0.8"/><text x="616" y="20" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="9" font-weight="600" fill="#1565c0">9–10</text><rect x="568" y="140" width="96" height="48" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.2"/><text x="616" y="160" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">수정안 심사</text><text x="616" y="176" text-anchor="middle" font-size="10" fill="#888">승인 관문</text><rect x="708" y="8" width="48" height="16" rx="8" fill="#ffffff" stroke="rgba(28,28,28,0.20)" stroke-width="0.8"/><text x="732" y="20" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="9" font-weight="600" fill="#888">11–13</text><rect x="684" y="52" width="96" height="48" rx="6" fill="#ffffff" stroke="#1c1c1c" stroke-width="1"/><text x="732" y="72" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">빌드 · 배포 준비</text><text x="732" y="88" text-anchor="middle" font-size="10" fill="#888">dry-run 고정</text><line x1="200" y1="76" x2="216" y2="76" stroke="#555" stroke-width="1" marker-end="url(#ar1)"/><path d="M316 76 H324 V164 H332" fill="none" stroke="#555" stroke-width="1" marker-end="url(#ar1)"/><path d="M432 164 H440 V76 H448" fill="none" stroke="#555" stroke-width="1" marker-end="url(#ar1)"/><path d="M548 76 H556 V164 H564" fill="none" stroke="#555" stroke-width="1" marker-end="url(#ar1)"/><path d="M664 164 H672 V76 H680" fill="none" stroke="#555" stroke-width="1" marker-end="url(#ar1)"/></svg>
+    <div class="fig-note">파란 칸 둘이 이 파이프라인의 요점이다 — <strong>모호한 요구사항을 사람이 먼저 정리하고</strong>, <strong>기계가 만든 수정안을 사람이 승인한다</strong>. 그 사이 구간은 자동으로 가고, 마지막 구간은 미리보기에서 멈춘다.</div>
+  </div>
+
+  <div class="figure">
+    <div class="fig-eyebrow">figure 2 · flowchart</div>
+    <div class="fig-title">영향도 분석이 갈라지는 지점 — Type 1 / Type 2</div>
+    <svg viewBox="0 0 820 352" role="img" aria-label="커스텀 유형에 따라 Type 1 과 Type 2 로 갈라지는 분기 플로차트"><defs><marker id="ar2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#555"/></marker></defs><rect x="316" y="8" width="192" height="36" rx="18" fill="#ffffff" stroke="#1c1c1c" stroke-width="1"/><text x="412" y="32" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">커스텀 유형 분류 결과</text><line x1="412" y1="44" x2="412" y2="68" stroke="#555" stroke-width="1" marker-end="url(#ar2)"/><path d="M412 72 L548 116 L412 160 L276 116 Z" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.2"/><text x="412" y="112" text-anchor="middle" font-size="12" font-weight="600" fill="#1565c0">표준 코드와</text><text x="412" y="128" text-anchor="middle" font-size="12" font-weight="600" fill="#1565c0">얽혀 있는가</text><path d="M276 116 H160 V196" fill="none" stroke="#555" stroke-width="1" marker-end="url(#ar2)"/><text x="216" y="108" text-anchor="middle" font-size="10" font-weight="400" fill="#888">아니오 · 독립 커스텀</text><path d="M548 116 H660 V196" fill="none" stroke="#555" stroke-width="1" marker-end="url(#ar2)"/><text x="608" y="108" text-anchor="middle" font-size="10" font-weight="400" fill="#888">예 · 섞이면 Type 2</text><rect x="60" y="200" width="200" height="56" rx="6" fill="#ffffff" stroke="#1c1c1c" stroke-width="1"/><text x="160" y="216" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="8" font-weight="500" fill="#888">TYPE 1</text><text x="160" y="232" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">표준 diff 위에서</text><text x="160" y="248" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">커스텀 수정분 추출</text><rect x="560" y="200" width="200" height="56" rx="6" fill="#ffffff" stroke="#1c1c1c" stroke-width="1"/><text x="660" y="216" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="8" font-weight="500" fill="#888">TYPE 2</text><text x="660" y="232" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">커밋 이력을</text><text x="660" y="248" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">패치 순서로 재생</text><path d="M160 256 V292 H408" fill="none" stroke="#555" stroke-width="1"/><path d="M660 256 V292 H416" fill="none" stroke="#555" stroke-width="1"/><circle cx="412" cy="292" r="4" fill="#1c1c1c"/><line x1="412" y1="296" x2="412" y2="312" stroke="#555" stroke-width="1" marker-end="url(#ar2)"/><rect x="272" y="316" width="280" height="32" rx="16" fill="#ffffff" stroke="#1c1c1c" stroke-width="1"/><text x="412" y="336" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">충돌 지점 · 위험도 · 수정 계획</text></svg>
+    <div class="fig-note">
+      <div class="formula"><span class="formula-tag">Type 1</span><span class="tex" role="math" aria-label="delta custom equals custom AS-IS minus standard AS-IS" title="\Delta_{\mathrm{custom}} \;=\; C_{\mathrm{AS\text{-}IS}} \setminus S_{\mathrm{AS\text{-}IS}}"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="normal">Δ</mi><mrow><mi mathvariant="normal">c</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">m</mi></mrow></msub><mtext>  </mtext><mo>=</mo><mtext>  </mtext><msub><mi>C</mi><mrow><mi mathvariant="normal">A</mi><mi mathvariant="normal">S</mi><mtext>-</mtext><mi mathvariant="normal">I</mi><mi mathvariant="normal">S</mi></mrow></msub><mo>∖</mo><msub><mi>S</mi><mrow><mi mathvariant="normal">A</mi><mi mathvariant="normal">S</mi><mtext>-</mtext><mi mathvariant="normal">I</mi><mi mathvariant="normal">S</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\Delta_{\mathrm{custom}} \;=\; C_{\mathrm{AS\text{-}IS}} \setminus S_{\mathrm{AS\text{-}IS}}</annotation></semantics></math></span><span class="formula-cap">표준에서 갈라진 부분만 뽑아낸다</span></div>
+      <div class="formula"><span class="formula-tag"></span><span class="tex" role="math" aria-label="custom TO-BE equals standard TO-BE combined with delta custom" title="C_{\mathrm{TO\text{-}BE}} \;=\; S_{\mathrm{TO\text{-}BE}} \oplus \Delta_{\mathrm{custom}}"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mrow><mi mathvariant="normal">T</mi><mi mathvariant="normal">O</mi><mtext>-</mtext><mi mathvariant="normal">B</mi><mi mathvariant="normal">E</mi></mrow></msub><mtext>  </mtext><mo>=</mo><mtext>  </mtext><msub><mi>S</mi><mrow><mi mathvariant="normal">T</mi><mi mathvariant="normal">O</mi><mtext>-</mtext><mi mathvariant="normal">B</mi><mi mathvariant="normal">E</mi></mrow></msub><mo>⊕</mo><msub><mi mathvariant="normal">Δ</mi><mrow><mi mathvariant="normal">c</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">m</mi></mrow></msub></mrow><annotation encoding="application/x-tex">C_{\mathrm{TO\text{-}BE}} \;=\; S_{\mathrm{TO\text{-}BE}} \oplus \Delta_{\mathrm{custom}}</annotation></semantics></math></span><span class="formula-cap">그것을 갈 버전 표준 위에 다시 얹는다</span></div>
+      <div class="formula"><span class="formula-tag">Type 2</span><span class="tex" role="math" aria-label="patch sequence p1 to pn replayed onto standard TO-BE" title="P=\langle p_1,\,p_2,\,\ldots,\,p_n\rangle \;\longmapsto\; S_{\mathrm{TO\text{-}BE}}"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mo stretchy="false">⟨</mo><msub><mi>p</mi><mn>1</mn></msub><mo separator="true">,</mo><mtext> </mtext><msub><mi>p</mi><mn>2</mn></msub><mo separator="true">,</mo><mtext> </mtext><mo>…</mo><mo separator="true">,</mo><mtext> </mtext><msub><mi>p</mi><mi>n</mi></msub><mo stretchy="false">⟩</mo><mtext>  </mtext><mo>⟼</mo><mtext>  </mtext><msub><mi>S</mi><mrow><mi mathvariant="normal">T</mi><mi mathvariant="normal">O</mi><mtext>-</mtext><mi mathvariant="normal">B</mi><mi mathvariant="normal">E</mi></mrow></msub></mrow><annotation encoding="application/x-tex">P=\langle p_1,\,p_2,\,\ldots,\,p_n\rangle \;\longmapsto\; S_{\mathrm{TO\text{-}BE}}</annotation></semantics></math></span><span class="formula-cap">커밋 이력을 갈 버전 위에 재생 — 항상 사람이 한 번 봐야 한다</span></div>
+      <div class="formula"><span class="formula-tag">Limit</span><span class="tex" role="math" aria-label="sum of block sizes at most 200 kilobytes" title="\sum_i \lvert b_i \rvert \;\le\; 200\,\mathrm{KB}"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>∑</mo><mi>i</mi></msub><mo stretchy="false">∣</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false">∣</mo><mtext>  </mtext><mo>≤</mo><mtext>  </mtext><mn>200</mn><mtext> </mtext><mrow><mi mathvariant="normal">K</mi><mi mathvariant="normal">B</mi></mrow></mrow><annotation encoding="application/x-tex">\sum_i \lvert b_i \rvert \;\le\; 200\,\mathrm{KB}</annotation></semantics></math></span><span class="formula-cap">한 번에 넘기는 코드 분량 상한</span></div>
+    </div>
   </div>
 
   <!-- ═══ Phase 1 ═══ -->
@@ -369,18 +447,17 @@
       </div>
     </div>
 
-    <!-- Step 7 (current) -->
-    <div class="step current">
-      <div class="step-icon">🔄</div>
+    <!-- Step 7 -->
+    <div class="step done">
+      <div class="step-icon">✅</div>
       <div class="step-num">7</div>
       <div class="step-body">
-        <div class="step-title">
-          컨텍스트 조합 → Claude 분석 시작
-          <span class="badge badge-current">현재 진행 지점</span>
-        </div>
+        <div class="step-title">컨텍스트 조합 → AI 분석 시작</div>
         <ul class="step-sub">
-          <li><span class="sub-icon">📦</span> 커스텀·표준 소스 위치 + 레드마인 일감 + pgvector 유사 일감 N개를 한 번에 전달</li>
-          <li><span class="sub-icon">🤖</span> 분석 버튼 클릭 → 커스텀 유형에 따라 Type 1 또는 Type 2 경로로 자동 분기</li>
+          <li><span class="sub-icon">📦</span> 커스텀·표준 소스 위치 + 레드마인 일감 + 유사 일감 N개를 한 번에 전달</li>
+          <li><span class="sub-icon">🤖</span> 분석 시작 → 커스텀 유형에 따라 Type 1 또는 Type 2 경로로 자동 분기</li>
+          <li><span class="sub-icon">🗣️</span> 시작 전에 <strong>요구사항 인터뷰</strong>를 할지 바로 계획으로 갈지 사람이 선택 — 모호한 요구사항 위에 계획을 세우지 않기 위한 관문</li>
+          <li><span class="sub-icon">📚</span> 같은 사이트·모듈의 과거 변경 이력을 커밋 기록에서 확정 조회해 함께 전달 (추정이 아닌 사실)</li>
         </ul>
       </div>
     </div>
@@ -395,11 +472,19 @@
     </div>
 
     <!-- Step 8 -->
-    <div class="step todo">
-      <div class="step-icon">⬜</div>
+    <div class="step done">
+      <div class="step-icon">✅</div>
       <div class="step-num">8</div>
       <div class="step-body">
-        <div class="step-title">영향도 분석 실행 (Type 1 / Type 2 분기)</div>
+        <div class="step-title">
+          영향도 분석 실행 (Type 1 / Type 2 분기)
+          <span class="badge badge-done">가동 중</span>
+        </div>
+        <ul class="step-sub">
+          <li><span class="sub-icon">🧩</span> 상태 그래프(LangGraph) 기반 정식 경로로 전환 — 중단된 지점부터 재개, 사람 확인 지점 삽입 가능</li>
+          <li><span class="sub-icon">🛡️</span> AI 호출 한도 가드 <span class="inline-tex"><span class="tex" role="math" aria-label="at most 60 calls per hour and 300 per day" title="r_{\mathrm{hour}} \le 60 \;,\quad r_{\mathrm{day}} \le 300"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mrow><mi mathvariant="normal">h</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">r</mi></mrow></msub><mo>≤</mo><mn>60</mn><mtext>  </mtext><mo separator="true">,</mo><mspace width="1em"/><msub><mi>r</mi><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">y</mi></mrow></msub><mo>≤</mo><mn>300</mn></mrow><annotation encoding="application/x-tex">r_{\mathrm{hour}} \le 60 \;,\quad r_{\mathrm{day}} \le 300</annotation></semantics></math></span></span> — 시간·일 상한 + 한도 오류 시 자동 차단(반복 호출로 주간 한도를 태우지 않게)</li>
+          <li><span class="sub-icon">⏹️</span> 진행 중 분석 즉시 중단 지원 — 중단해도 다음 분석은 처음부터 새로 시작</li>
+        </ul>
         <div class="type-row">
           <div class="type-box t1">
             <div class="type-box-title">🔵 Type 1 — 독립 커스텀</div>
@@ -435,27 +520,36 @@
     </div>
 
     <!-- Step 9 -->
-    <div class="step todo">
-      <div class="step-icon">⬜</div>
+    <div class="step current">
+      <div class="step-icon">🔄</div>
       <div class="step-num">9</div>
       <div class="step-body">
-        <div class="step-title">분석 결과 표시 → 개발자 검토 후 수락</div>
+        <div class="step-title">
+          분석 결과 표시 → 개발자 검토 후 수락
+          <span class="badge badge-current">부분 가동</span>
+        </div>
         <ul class="step-sub">
           <li><span class="sub-icon">🖥️</span> 어떤 파일을 어떻게 수정할지 diff 형태로 대시보드에 표시</li>
-          <li><span class="sub-icon">✏️</span> 개발자가 프롬프트를 추가로 입력하여 재분석 요청 가능 (예정)</li>
-          <li><span class="sub-icon">✅</span> 수락 후 개발 진행</li>
+          <li><span class="sub-icon">🔀</span> 분석 단계에 따로 있던 검토 관문을 <strong>수정 단계의 승인 관문으로 통합</strong> — 승인 지점이 두 곳으로 갈려 아무도 보지 않던 검토 대기가 쌓이던 문제를 정리</li>
+          <li><span class="sub-icon">✏️</span> 개발자가 프롬프트를 추가 입력해 재분석 요청 <span class="tag tag-todo">예정</span></li>
         </ul>
       </div>
     </div>
-
     <!-- Step 10 -->
-    <div class="step todo">
-      <div class="step-icon">⬜</div>
+    <div class="step current">
+      <div class="step-icon">🔄</div>
       <div class="step-num">10</div>
       <div class="step-body">
-        <div class="step-title">개발된 코드 최종 확인 → git 커밋</div>
+        <div class="step-title">
+          코드 수정안 자동 생성 → 개발자 확인
+          <span class="badge badge-current">부분 가동</span>
+        </div>
         <ul class="step-sub">
-          <li><span class="sub-icon">👁️</span> 개발자가 변경 내용을 직접 검토 후 커밋</li>
+          <li><span class="sub-icon">📦</span> 작업본을 격리한 사본에서 수정 — 원본 소스와 표준 모듈은 건드리지 않음</li>
+          <li><span class="sub-icon">🔒</span> 외부 통신 허용 목록을 둔 샌드박스 안에서 실행</li>
+          <li><span class="sub-icon">2️⃣</span> 두 단계로 나뉨 — ① 요구사항 수정안(미리보기) → <strong>사람 승인</strong> → ② 필수 점검(버전 이관 시 확인해야 하는 항목)</li>
+          <li><span class="sub-icon">🔨</span> 갈 버전 환경에서 빌드 검증 — 손대기 전과 비교해 <span class="inline-tex"><span class="tex" role="math" aria-label="new errors equal errors after minus errors before" title="E_{\mathrm{new}} \;=\; E_{\mathrm{after}} \setminus E_{\mathrm{before}}"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">w</mi></mrow></msub><mtext>  </mtext><mo>=</mo><mtext>  </mtext><msub><mi>E</mi><mrow><mi mathvariant="normal">a</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">r</mi></mrow></msub><mo>∖</mo><msub><mi>E</mi><mrow><mi mathvariant="normal">b</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">e</mi></mrow></msub></mrow><annotation encoding="application/x-tex">E_{\mathrm{new}} \;=\; E_{\mathrm{after}} \setminus E_{\mathrm{before}}</annotation></semantics></math></span></span> 이 수정이 만든 오류만 골라냄</li>
+          <li><span class="sub-icon">🛑</span> 미리보기 고정 · 자동 PR·푸시 금지 <span class="tag tag-warn">안전장치 유지</span></li>
         </ul>
       </div>
     </div>
@@ -470,18 +564,22 @@
     </div>
 
     <!-- Step 11 -->
-    <div class="step todo">
-      <div class="step-icon">⬜</div>
+    <div class="step current">
+      <div class="step-icon">🔄</div>
       <div class="step-num">11</div>
       <div class="step-body">
-        <div class="step-title">빌드 및 자동화 테스트</div>
+        <div class="step-title">
+          빌드 및 자동화 테스트
+          <span class="badge badge-current">부분 가동</span>
+        </div>
         <ul class="step-sub">
-          <li><span class="sub-icon">🔨</span> CI/CD 파이프라인에서 빌드 후 JUnit 단위 테스트 실행</li>
-          <li><span class="sub-icon">🐳</span> 도커 인프라에 패치 배포 후 재시작 → E2E 테스트 (JUnit 통과 시 스킵 가능)</li>
+          <li><span class="sub-icon">🔨</span> 빌드 오케스트레이션 가동 — 모듈별 빌드·산출물 수집</li>
+          <li><span class="sub-icon">🧪</span> 빌드 사전 검증(필요 이미지·의존성 확인) · 서버 모듈 산출물 정규화 · 의존성 캐시 이미지</li>
+          <li><span class="sub-icon">🐳</span> 도커 인프라에 패치 배포 후 재시작 → E2E <span class="tag tag-todo">미구현</span></li>
+          <li><span class="sub-icon">⚠️</span> 대상 소스의 단위 테스트 자동화는 아직 없음 <span class="tag tag-warn">남은 과제</span></li>
         </ul>
       </div>
     </div>
-
     <!-- Step 12 -->
     <div class="step todo">
       <div class="step-icon">⬜</div>
@@ -501,17 +599,78 @@
     </div>
 
     <!-- Step 13 -->
-    <div class="step todo">
-      <div class="step-icon">⬜</div>
+    <div class="step current">
+      <div class="step-icon">🔄</div>
       <div class="step-num">13</div>
       <div class="step-body">
-        <div class="step-title">레드마인 댓글 자동 등록 + 배포 메일 발송</div>
+        <div class="step-title">
+          레드마인 댓글 자동 등록 + 배포 메일 발송
+          <span class="badge badge-current">부분 가동</span>
+        </div>
         <ul class="step-sub">
-          <li><span class="sub-icon">📝</span> AI 분석 결과로 생성된 Redmine 댓글 초안을 MCP를 통해 자동 등록</li>
-          <li><span class="sub-icon">📧</span> 로그인한 사용자 계정 정보로 배포 완료 메일 발송</li>
+          <li><span class="sub-icon">📝</span> 분석 결과로 Redmine 댓글 초안 자동 생성 — 자동 등록은 <span class="tag tag-todo">미구현</span></li>
+          <li><span class="sub-icon">📧</span> 패치·배포 메일은 <strong>미리보기 → 확인</strong> 두 단계 — 사람이 승인한 뒤에만 발송</li>
           <li><span class="sub-icon">📊</span> 구글 드라이브 DML을 MCP로 읽어 테이블 구조 자동 확인 <span class="tag tag-warn">검토 중</span></li>
         </ul>
       </div>
+    </div>
+  </div>
+
+  <!-- ═══ 13단계 외 추가 구축 ═══ -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-icon">🆕</div>
+      <div class="phase-title" style="color:#00838f">13단계 외 추가 구축</div>
+      <div class="phase-range">2026-06 ~ 08</div>
+    </div>
+    <div class="section-banner banner-human">13단계 파이프라인 위에 운영·품질 축이 붙어, 분석 도구를 넘어 업무 플랫폼으로 넓어진 부분</div>
+
+    <div class="output-box">
+      <div class="output-box-title">🗣️ 요구사항 인터뷰 우선 흐름</div>
+      <ul>
+        <li><span class="sub-icon">❓</span> 계획을 세우기 전에 모호한 점을 사람에게 되묻고, 그 답을 실행 계약(목표 · 완료 조건 · 확인 방법)으로 굳힘</li>
+        <li><span class="sub-icon">📏</span> 모호성 점수는 측정값만 표시 — 아직 못 잰 구간은 "재지 않음"으로 그대로 표기</li>
+        <li><span class="sub-icon">✅</span> 완료 조건 중 기계가 볼 수 있는 것(표준 미수정 · 사이트 격리 · 빌드 성공 등)은 자동 판정, 나머지는 사람 확인으로 명시</li>
+      </ul>
+    </div>
+
+    <div class="output-box">
+      <div class="output-box-title">📎 첨부 처리 — 첨부 단위 작업</div>
+      <ul>
+        <li><span class="sub-icon">✂️</span> 작업 단위를 일감 → 첨부 하나로 내림. 한 파일이 오래 걸려도 나머지 파일과 마무리는 그대로 진행</li>
+        <li><span class="sub-icon">💾</span> 성공한 파일은 그 자리에서 저장 — 재시도가 앞에서 한 일을 되돌리지 않음</li>
+        <li><span class="sub-icon">👁️</span> 어떤 파일에서 무엇을 하는 중인지(다운로드 · 변환 · OCR) 화면에 실시간 표시</li>
+        <li><span class="sub-icon">🔤</span> 한국어 OCR 우선 적용 후 단계별 폴백 — 이미지·PDF 첨부에서 본문 확보</li>
+      </ul>
+    </div>
+
+    <div class="output-box">
+      <div class="output-box-title">🔔 목록·대시보드 실시간 신호</div>
+      <ul>
+        <li><span class="sub-icon">🚩</span> 일감이 어디까지 왔는지 목록에서 바로 보임 — 시작 전 / 인터뷰 중 / 계획 완료 / 코드 변경안 있음 / 처리 불가</li>
+        <li><span class="sub-icon">👤</span> "누구 차례"를 구분 — 답변 대기 · 승인 대기 · 멈춤</li>
+        <li><span class="sub-icon">📬</span> 작업이 끝나면 어느 화면에 있어도 알림 + 클릭 이동</li>
+        <li><span class="sub-icon">⚡</span> 상세에서 바꾸면 목록·대시보드에 즉시 반영 (새로고침 불필요)</li>
+      </ul>
+    </div>
+
+    <div class="output-box">
+      <div class="output-box-title">🧰 운영 축</div>
+      <ul>
+        <li><span class="sub-icon">🤖</span> 사용자별 AI 계정 + 시간 단위 대여 — 분석·챗봇·수정이 요청자 계정으로 실행</li>
+        <li><span class="sub-icon">⚙️</span> 반복 운영 작업 자동화 틀(일감 자동완료 · 주간 회고 기록 등) — 3종 등록, 활성화 대기 <span class="tag tag-warn">운영 전환 전</span></li>
+        <li><span class="sub-icon">🖥️</span> 인프라 현황 탭 — VM 현황·점유, 도커 서버, 빌드 환경, 버전별 표준 DB 스키마 비교</li>
+        <li><span class="sub-icon">💬</span> 사내 문서 RAG 챗봇 — 문서 + 함수 단위 코드 검색, 벡터와 전문 검색을 함께 사용</li>
+      </ul>
+    </div>
+
+    <div class="output-box">
+      <div class="output-box-title">🛡️ 품질·보안</div>
+      <ul>
+        <li><span class="sub-icon">🧪</span> API 회귀 테스트 추가 · 첨부 파싱 결과의 스크립트 삽입 차단</li>
+        <li><span class="sub-icon">🔇</span> 조용히 삼켜지던 실패 지점에 로깅 추가 — 문제가 눈에 보이게</li>
+        <li><span class="sub-icon">🔒</span> 개발용 코드 편집기를 대시보드 로그인 세션으로 게이트 (별도 비밀번호 제거)</li>
+      </ul>
     </div>
   </div>
 
