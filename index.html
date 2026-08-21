@@ -1,678 +1,259 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI 업무 자동화 워크플로우</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customate — 커스텀 자동화 워크플로우</title>
+<meta name="description" content="Customate: 넷앤드 Redmine 이슈 처리 자동화 파이프라인 13단계 현황">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Noto Sans KR', sans-serif;
-      background: #f0f2f5;
-      color: #1c1c1c;
-      padding: 32px 20px;
-      font-size: 14px;
-      line-height: 1.65;
-    }
+  body {
+    font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    background: #f6f5f4;
+    color: rgba(0,0,0,0.95);
+    font-size: 14px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px 64px; }
 
-    .container { max-width: 880px; margin: 0 auto; }
+  /* 건너뛰기 링크 — 키보드 사용자가 본문으로 바로 간다 */
+  .skip {
+    position: absolute; left: -9999px; top: 0;
+    background: #ffffff; color: #0075de; padding: 10px 14px;
+    border-radius: 8px; font-weight: 700; z-index: 10;
+  }
+  .skip:focus { left: 20px; top: 12px; }
 
-    /* 헤더 */
-    .page-header {
-      margin-bottom: 28px;
-    }
-    .page-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: #111;
-      margin-bottom: 6px;
-    }
-    .page-subtitle {
-      font-size: 13px;
-      color: #888;
-    }
+  /* ── 머리 (banner) ── */
+  header.brand {
+    display: flex; align-items: center; gap: 10px;
+    padding: 18px 0 16px;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+    margin-bottom: 28px;
+  }
+  .wordmark { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+  .chip {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+    color: #615d59; background: rgba(0,0,0,0.045);
+    padding: 3px 7px; border-radius: 4px;
+  }
+  .brand-date { margin-left: auto; font-size: 12px; color: #a39e98; }
 
-    /* 범례 */
-    .legend {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-      padding: 10px 16px;
-      background: white;
-      border-radius: 8px;
-      border: 1px solid #e8e8e6;
-      font-size: 12px;
-      color: #555;
-    }
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .legend-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-    }
+  h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; line-height: 1.3; }
+  .sub { margin-top: 6px; font-size: 14.5px; color: #615d59; }
 
-    /* 진행 현황 */
-    .progress-bar-wrap {
-      background: white;
-      border-radius: 8px;
-      padding: 14px 18px;
-      margin-bottom: 24px;
-      border: 1px solid #e8e8e6;
-    }
-    .progress-label {
-      font-size: 12px;
-      color: #888;
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .progress-count { font-weight: 700; color: #4caf50; font-size: 13px; }
-    .bar {
-      background: #ebebeb;
-      border-radius: 99px;
-      height: 8px;
-      overflow: hidden;
-    }
-    .bar-fill {
-      height: 100%;
-      width: calc(8 / 13 * 100%);
-      background: linear-gradient(90deg, #4caf50, #81c784);
-      border-radius: 99px;
-    }
+  /* ── 요약 카드 ── */
+  .summary {
+    margin-top: 20px; background: #ffffff; border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 10px; padding: 18px 20px;
+  }
+  .summary p { font-size: 14.5px; color: #615d59; }
+  .summary p + p { margin-top: 8px; }
+  .summary strong { color: rgba(0,0,0,0.95); font-weight: 700; }
+  .meter { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+  progress { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border: 0; }
+  progress::-webkit-progress-bar { background: rgba(0,0,0,0.045); border-radius: 99px; }
+  progress::-webkit-progress-value { background: #1aae39; border-radius: 99px; }
+  progress::-moz-progress-bar { background: #1aae39; border-radius: 99px; }
+  .meter-num {
+    flex: none; font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace; font-size: 12px; font-weight: 600; color: #615d59;
+  }
 
-    /* 페이즈 */
-    .phase { margin-bottom: 24px; }
-    .phase-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-      padding: 0 2px;
-    }
-    .phase-icon { font-size: 16px; line-height: 1; }
-    .phase-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
-    .phase-range { font-size: 11px; color: #bbb; margin-left: auto; }
+  /* ── 절 ── */
+  section { margin-top: 40px; }
+  h2 {
+    display: flex; align-items: baseline; gap: 10px;
+    font-size: 16px; font-weight: 700; letter-spacing: -0.2px;
+    padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.07);
+  }
+  h2 .n { font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace; font-size: 12px; font-weight: 600; color: #0075de; }
+  section > p.lead { margin-top: 12px; font-size: 14px; color: #615d59; }
 
-    /* 섹션 배너 */
-    .section-banner {
-      border-radius: 7px;
-      padding: 8px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 5px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .banner-auto  { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
-    .banner-human { background: #fff3e0; color: #bf360c; border: 1px solid #ffccbc; }
+  /* ── 그림 ── */
+  figure {
+    margin-top: 16px; background: #ffffff; border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 10px; padding: 18px 20px 14px;
+  }
+  figure svg { display: block; width: 100%; height: auto; }
+  figcaption {
+    margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.045);
+    font-size: 13px; line-height: 1.7; color: #615d59;
+  }
+  figcaption b { color: rgba(0,0,0,0.95); font-weight: 700; }
 
-    /* 단계 카드 */
-    .step {
-      display: flex;
-      gap: 12px;
-      padding: 11px 14px;
-      background: white;
-      border-radius: 8px;
-      margin-bottom: 5px;
-      border: 1px solid #e8e8e6;
-      align-items: flex-start;
-      transition: box-shadow 0.15s, transform 0.1s;
-    }
-    .step:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.07); transform: translateY(-1px); }
-    .step.done    { border-left: 3px solid #4caf50; }
-    .step.current { border-left: 3px solid #2196f3; background: #f0f7ff; }
-    .step.todo    { border-left: 3px solid #ddd; background: #fafafa; }
+  /* ── 표 ── */
+  .tablecard {
+    margin-top: 16px; background: #ffffff; border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 10px; overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  caption {
+    text-align: left; padding: 14px 20px 10px; font-size: 13px; color: #615d59;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+  }
+  caption b { color: rgba(0,0,0,0.95); font-weight: 700; }
+  tbody th, tbody td { padding: 9px 12px; vertical-align: baseline; font-weight: 400; }
+  tbody tr + tr th, tbody tr + tr td { border-top: 1px solid rgba(0,0,0,0.045); }
+  tr.grp th {
+    text-align: left; padding: 12px 20px 6px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+    color: #a39e98; background: #fbfaf9;
+    border-top: 1px solid rgba(0,0,0,0.07) !important;
+  }
+  tbody tr.grp:first-child th { border-top: 0 !important; }
+  th.num {
+    width: 44px; padding-left: 20px; text-align: left;
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace; font-size: 12px; color: #a39e98;
+  }
+  td.st { width: 104px; white-space: nowrap; }
+  .mk { font-size: 10px; margin-right: 6px; }
+  .stw { font-size: 12px; font-weight: 700; }
+  .done { color: #1aae39; }
+  .part { color: #0075de; }
+  .todo { color: #a39e98; }
+  td.nm { width: 190px; font-weight: 600; }
+  td.nt { color: #615d59; font-size: 13px; padding-right: 20px; }
 
-    .step-icon {
-      font-size: 16px;
-      line-height: 1;
-      min-width: 24px;
-      padding-top: 2px;
-      text-align: center;
-    }
-    .step-num {
-      font-size: 11px;
-      font-weight: 700;
-      color: #ccc;
-      min-width: 16px;
-      padding-top: 3px;
-      text-align: right;
-    }
-    .step.done .step-num    { color: #4caf50; }
-    .step.current .step-num { color: #2196f3; }
+  /* ── 정의 목록 (기능) ── */
+  dl {
+    margin-top: 16px; background: #ffffff; border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 10px; padding: 4px 20px 8px;
+  }
+  dl > div { display: flex; gap: 16px; padding: 10px 0; }
+  dl > div + div { border-top: 1px solid rgba(0,0,0,0.045); }
+  dt { flex: none; width: 150px; font-weight: 700; }
+  dd { color: #615d59; font-size: 13.5px; }
 
-    .step-body { flex: 1; }
+  /* ── 남은 과제 ── */
+  ol.todo-list {
+    margin-top: 16px; background: #ffffff; border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 10px; padding: 8px 20px 12px 44px;
+  }
+  ol.todo-list li { padding: 8px 0; color: #615d59; font-size: 13.5px; }
+  ol.todo-list li + li { border-top: 1px solid rgba(0,0,0,0.045); }
+  ol.todo-list li::marker { color: #a39e98; font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace; font-size: 12px; }
 
-    .step-title {
-      font-size: 13.5px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 7px;
-      color: #222;
-    }
-    .step.todo .step-title { color: #888; }
+  /* ── 각주 ── */
+  footer {
+    margin-top: 40px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.07);
+    font-size: 12.5px; line-height: 1.75; color: #a39e98;
+  }
+  footer p + p { margin-top: 6px; }
+  footer sup { color: #615d59; font-weight: 700; margin-right: 4px; }
 
-    .badge {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 99px;
-    }
-    .badge-done    { background: #e8f5e9; color: #2e7d32; }
-    .badge-current { background: #e3f2fd; color: #1565c0; }
-    .badge-todo    { background: #f5f5f5; color: #999; border: 1px solid #e0e0e0; }
-
-    .step-sub {
-      margin-top: 7px;
-    }
-    .step-sub li {
-      font-size: 12px;
-      color: #555;
-      list-style: none;
-      padding: 2px 0;
-      display: flex;
-      align-items: flex-start;
-      gap: 6px;
-    }
-    .step.todo .step-sub li { color: #999; }
-    .step-sub .sub-icon { font-size: 12px; flex-shrink: 0; margin-top: 1px; }
-
-    /* 하위 인덴트 */
-    .step-sub .indent {
-      padding-left: 18px;
-      font-size: 11.5px;
-      color: #777;
-    }
-    .step-sub .indent::before { content: '└ '; color: #ccc; }
-
-    /* 타입 박스 */
-    .type-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 6px;
-      flex-wrap: wrap;
-    }
-    .type-box {
-      flex: 1;
-      min-width: 200px;
-      border-radius: 6px;
-      padding: 8px 12px;
-      font-size: 11.5px;
-    }
-    .type-box-title { font-weight: 700; margin-bottom: 3px; font-size: 12px; }
-    .type-box.t1 { background: #e8f5e9; border: 1px solid #c8e6c9; color: #1b5e20; }
-    .type-box.t2 { background: #ede7f6; border: 1px solid #d1c4e9; color: #311b92; }
-    .type-box .types { color: inherit; opacity: 0.85; line-height: 1.8; }
-
-    /* 공통출력 박스 */
-    .output-box {
-      background: #f8f8f8;
-      border: 1px solid #e0e0e0;
-      border-radius: 7px;
-      padding: 10px 14px;
-      margin: 8px 0 4px;
-      font-size: 12px;
-    }
-    .output-box-title { font-weight: 700; color: #444; margin-bottom: 6px; font-size: 12px; }
-    .output-box li { color: #555; padding: 2px 0; display: flex; gap: 6px; }
-    .output-box li .sub-icon { flex-shrink: 0; }
-
-    /* 링크선 */
-    .connector { padding-left: 22px; margin: 1px 0; }
-    .connector-line { width: 2px; height: 7px; background: #e0e0e0; }
-
-    /* 태그 */
-    .tag {
-      font-size: 10px; font-weight: 600;
-      padding: 1px 6px; border-radius: 3px; white-space: nowrap;
-    }
-    .tag-warn { background: #fff8e1; color: #f57f17; border: 1px solid #ffe082; }
-    .tag-todo { background: #fafafa; color: #aaa; border: 1px solid #e0e0e0; }
-
-    /* ── 도식 (diagram-design v2.6: 자체 완결 SVG · 그림자 없음 · grid 4) ── */
-    .figure {
-      background: white;
-      border: 1px solid #e8e8e6;
-      border-radius: 8px;
-      padding: 18px 20px 14px;
-      margin-bottom: 14px;
-    }
-    .fig-eyebrow {
-      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-      font-size: 8px;
-      font-weight: 500;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: #888;
-      margin-bottom: 2px;
-    }
-    .fig-title { font-size: 13px; font-weight: 700; color: #1c1c1c; margin-bottom: 12px; }
-    .figure svg { display: block; width: 100%; height: auto; }
-    .fig-note {
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid rgba(28,28,28,0.12);
-      font-size: 12px;
-      color: #555;
-      line-height: 1.75;
-    }
-
-    /* 수식 — LaTeX 를 빌드 시점에 MathML 로 변환해 심었다(외부 스크립트 없음) */
-    .tex math { color: #1c1c1c; font-size: 1.05em; }
-    .formula {
-      display: flex;
-      align-items: baseline;
-      gap: 12px;
-      flex-wrap: wrap;
-      padding: 7px 0;
-    }
-    .formula + .formula { border-top: 1px dashed rgba(28,28,28,0.12); }
-    .formula-tag {
-      flex: none;
-      min-width: 52px;
-      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-      font-size: 9px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      color: #888;
-      text-transform: uppercase;
-    }
-    .formula-cap { font-size: 12px; color: #555; }
-    .inline-tex {
-      display: inline-flex;
-      align-items: baseline;
-      padding: 0 6px;
-      background: #fafafa;
-      border: 1px solid rgba(28,28,28,0.12);
-      border-radius: 4px;
-    }
-  </style>
+  @media (max-width: 720px) {
+    h1 { font-size: 22px; }
+    td.nm, dt { width: auto; }
+    td.st { width: 88px; }
+    dl > div { flex-direction: column; gap: 2px; }
+    th.num { width: 34px; padding-left: 12px; }
+    td.nt { padding-right: 12px; }
+  }
+</style>
 </head>
 <body>
-<div class="container">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+<div class="wrap">
 
-  <!-- 헤더 -->
-  <div class="page-header">
-    <div class="page-title">🏭 AI 업무 자동화 워크플로우</div>
-    <div class="page-subtitle">넷앤드 Redmine 이슈 처리 자동화 파이프라인 — 2026-08-21 기준</div>
-  </div>
+  <header class="brand">
+    <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="15" cy="16.8" r="9" fill="none" stroke="#0075de" stroke-width="5.6" stroke-linecap="round" pathLength="100" stroke-dasharray="65 35" stroke-dashoffset="82.5"/><path d="M18.4 7 L24.4 8.4 L21.6 14 Z" fill="#0075de"/><path d="M26.2 2 Q26.86 5.5 30.4 6.2 Q26.86 6.9 26.2 10.4 Q25.54 6.9 22 6.2 Q25.54 5.5 26.2 2 Z" fill="#0075de"/></svg>
+    <span class="wordmark">Customate</span>
+    <span class="chip">CUSTOM DEV1</span>
+    <span class="brand-date"><time datetime="2026-08-21">2026-08-21</time> 기준</span>
+  </header>
 
-  <!-- 범례 -->
-  <div class="legend">
-    <div class="legend-item"><span>✅</span> 구현 완료</div>
-    <div class="legend-item"><span>🔄</span> 부분 가동</div>
-    <div class="legend-item"><span>⬜</span> 미구현 (예정)</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#1976d2"></div> Phase 1 — RAG / 데이터</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#8e24aa"></div> Phase 2 — AI 분석</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#2e7d32"></div> Phase 3 — 테스트</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#e65100"></div> Phase 4 — MCP</div>
-  </div>
+  <main id="main">
+    <h1>커스텀 자동화 워크플로우</h1>
+    <p class="sub">고객사 Redmine 이슈를 받아 유형을 가르고, 영향도를 분석해 코드 수정안까지 만드는 13단계 파이프라인.</p>
 
-  <!-- 진행 현황 바 -->
-  <div class="progress-bar-wrap">
-    <div class="progress-label">
-      전체 진행 현황
-      <span class="progress-count">8 완료 · 4 부분 가동 · 1 미구현</span>
-    </div>
-    <div class="bar"><div class="bar-fill"></div></div>
-  </div>
-
-  <!-- ═══ 도식 ═══ -->
-  <div class="figure">
-    <div class="fig-eyebrow">figure 1 · swimlane</div>
-    <div class="fig-title">사람이 멈춰 세우는 두 지점 — 13단계를 담당 주체로 보면</div>
-    <svg viewBox="0 0 820 232" role="img" aria-label="자동 레인과 사람 레인으로 나눈 6구간 파이프라인 스윔레인 도식"><defs><marker id="ar1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#555"/></marker></defs><line x1="0" y1="32" x2="820" y2="32" stroke="rgba(28,28,28,0.12)" stroke-width="1"/><line x1="0" y1="120" x2="820" y2="120" stroke="rgba(28,28,28,0.12)" stroke-width="1"/><line x1="0" y1="208" x2="820" y2="208" stroke="rgba(28,28,28,0.12)" stroke-width="1"/><line x1="96" y1="32" x2="96" y2="208" stroke="rgba(28,28,28,0.12)" stroke-width="1"/><text x="48" y="80" text-anchor="middle" font-size="10" font-weight="600" fill="#888">자동</text><text x="48" y="168" text-anchor="middle" font-size="10" font-weight="600" fill="#888">사람</text><rect x="128" y="8" width="48" height="16" rx="8" fill="#ffffff" stroke="rgba(28,28,28,0.20)" stroke-width="0.8"/><text x="152" y="20" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="9" font-weight="600" fill="#888">1–3</text><rect x="104" y="52" width="96" height="48" rx="6" fill="#ffffff" stroke="#1c1c1c" stroke-width="1"/><text x="152" y="72" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">수집 · 분류</text><text x="152" y="88" text-anchor="middle" font-size="10" fill="#888">30분 주기</text><rect x="244" y="8" width="48" height="16" rx="8" fill="#ffffff" stroke="rgba(28,28,28,0.20)" stroke-width="0.8"/><text x="268" y="20" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="9" font-weight="600" fill="#888">4–6</text><rect x="220" y="52" width="96" height="48" rx="6" fill="#ffffff" stroke="#1c1c1c" stroke-width="1"/><text x="268" y="72" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">소스 확보</text><text x="268" y="88" text-anchor="middle" font-size="10" fill="#888">GitLab 탐색</text><rect x="360" y="8" width="48" height="16" rx="8" fill="#e3f2fd" stroke="#1565c0" stroke-width="0.8"/><text x="384" y="20" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="9" font-weight="600" fill="#1565c0">7</text><rect x="336" y="140" width="96" height="48" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.2"/><text x="384" y="160" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">인터뷰 선택</text><text x="384" y="176" text-anchor="middle" font-size="10" fill="#888">모호함 정리</text><rect x="476" y="8" width="48" height="16" rx="8" fill="#ffffff" stroke="rgba(28,28,28,0.20)" stroke-width="0.8"/><text x="500" y="20" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="9" font-weight="600" fill="#888">8</text><rect x="452" y="52" width="96" height="48" rx="6" fill="#ffffff" stroke="#1c1c1c" stroke-width="1"/><text x="500" y="72" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">영향도 분석</text><text x="500" y="88" text-anchor="middle" font-size="10" fill="#888">상태 그래프</text><rect x="592" y="8" width="48" height="16" rx="8" fill="#e3f2fd" stroke="#1565c0" stroke-width="0.8"/><text x="616" y="20" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="9" font-weight="600" fill="#1565c0">9–10</text><rect x="568" y="140" width="96" height="48" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.2"/><text x="616" y="160" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">수정안 심사</text><text x="616" y="176" text-anchor="middle" font-size="10" fill="#888">승인 관문</text><rect x="708" y="8" width="48" height="16" rx="8" fill="#ffffff" stroke="rgba(28,28,28,0.20)" stroke-width="0.8"/><text x="732" y="20" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="9" font-weight="600" fill="#888">11–13</text><rect x="684" y="52" width="96" height="48" rx="6" fill="#ffffff" stroke="#1c1c1c" stroke-width="1"/><text x="732" y="72" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">빌드 · 배포 준비</text><text x="732" y="88" text-anchor="middle" font-size="10" fill="#888">dry-run 고정</text><line x1="200" y1="76" x2="216" y2="76" stroke="#555" stroke-width="1" marker-end="url(#ar1)"/><path d="M316 76 H324 V164 H332" fill="none" stroke="#555" stroke-width="1" marker-end="url(#ar1)"/><path d="M432 164 H440 V76 H448" fill="none" stroke="#555" stroke-width="1" marker-end="url(#ar1)"/><path d="M548 76 H556 V164 H564" fill="none" stroke="#555" stroke-width="1" marker-end="url(#ar1)"/><path d="M664 164 H672 V76 H680" fill="none" stroke="#555" stroke-width="1" marker-end="url(#ar1)"/></svg>
-    <div class="fig-note">파란 칸 둘이 이 파이프라인의 요점이다 — <strong>모호한 요구사항을 사람이 먼저 정리하고</strong>, <strong>기계가 만든 수정안을 사람이 승인한다</strong>. 그 사이 구간은 자동으로 가고, 마지막 구간은 미리보기에서 멈춘다.</div>
-  </div>
-
-  <div class="figure">
-    <div class="fig-eyebrow">figure 2 · flowchart</div>
-    <div class="fig-title">영향도 분석이 갈라지는 지점 — Type 1 / Type 2</div>
-    <svg viewBox="0 0 820 352" role="img" aria-label="커스텀 유형에 따라 Type 1 과 Type 2 로 갈라지는 분기 플로차트"><defs><marker id="ar2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#555"/></marker></defs><rect x="316" y="8" width="192" height="36" rx="18" fill="#ffffff" stroke="#1c1c1c" stroke-width="1"/><text x="412" y="32" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">커스텀 유형 분류 결과</text><line x1="412" y1="44" x2="412" y2="68" stroke="#555" stroke-width="1" marker-end="url(#ar2)"/><path d="M412 72 L548 116 L412 160 L276 116 Z" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.2"/><text x="412" y="112" text-anchor="middle" font-size="12" font-weight="600" fill="#1565c0">표준 코드와</text><text x="412" y="128" text-anchor="middle" font-size="12" font-weight="600" fill="#1565c0">얽혀 있는가</text><path d="M276 116 H160 V196" fill="none" stroke="#555" stroke-width="1" marker-end="url(#ar2)"/><text x="216" y="108" text-anchor="middle" font-size="10" font-weight="400" fill="#888">아니오 · 독립 커스텀</text><path d="M548 116 H660 V196" fill="none" stroke="#555" stroke-width="1" marker-end="url(#ar2)"/><text x="608" y="108" text-anchor="middle" font-size="10" font-weight="400" fill="#888">예 · 섞이면 Type 2</text><rect x="60" y="200" width="200" height="56" rx="6" fill="#ffffff" stroke="#1c1c1c" stroke-width="1"/><text x="160" y="216" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="8" font-weight="500" fill="#888">TYPE 1</text><text x="160" y="232" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">표준 diff 위에서</text><text x="160" y="248" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">커스텀 수정분 추출</text><rect x="560" y="200" width="200" height="56" rx="6" fill="#ffffff" stroke="#1c1c1c" stroke-width="1"/><text x="660" y="216" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="8" font-weight="500" fill="#888">TYPE 2</text><text x="660" y="232" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">커밋 이력을</text><text x="660" y="248" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">패치 순서로 재생</text><path d="M160 256 V292 H408" fill="none" stroke="#555" stroke-width="1"/><path d="M660 256 V292 H416" fill="none" stroke="#555" stroke-width="1"/><circle cx="412" cy="292" r="4" fill="#1c1c1c"/><line x1="412" y1="296" x2="412" y2="312" stroke="#555" stroke-width="1" marker-end="url(#ar2)"/><rect x="272" y="316" width="280" height="32" rx="16" fill="#ffffff" stroke="#1c1c1c" stroke-width="1"/><text x="412" y="336" text-anchor="middle" font-size="12" font-weight="600" fill="#1c1c1c">충돌 지점 · 위험도 · 수정 계획</text></svg>
-    <div class="fig-note">
-      <div class="formula"><span class="formula-tag">Type 1</span><span class="tex" role="math" aria-label="delta custom equals custom AS-IS minus standard AS-IS" title="\Delta_{\mathrm{custom}} \;=\; C_{\mathrm{AS\text{-}IS}} \setminus S_{\mathrm{AS\text{-}IS}}"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="normal">Δ</mi><mrow><mi mathvariant="normal">c</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">m</mi></mrow></msub><mtext>  </mtext><mo>=</mo><mtext>  </mtext><msub><mi>C</mi><mrow><mi mathvariant="normal">A</mi><mi mathvariant="normal">S</mi><mtext>-</mtext><mi mathvariant="normal">I</mi><mi mathvariant="normal">S</mi></mrow></msub><mo>∖</mo><msub><mi>S</mi><mrow><mi mathvariant="normal">A</mi><mi mathvariant="normal">S</mi><mtext>-</mtext><mi mathvariant="normal">I</mi><mi mathvariant="normal">S</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\Delta_{\mathrm{custom}} \;=\; C_{\mathrm{AS\text{-}IS}} \setminus S_{\mathrm{AS\text{-}IS}}</annotation></semantics></math></span><span class="formula-cap">표준에서 갈라진 부분만 뽑아낸다</span></div>
-      <div class="formula"><span class="formula-tag"></span><span class="tex" role="math" aria-label="custom TO-BE equals standard TO-BE combined with delta custom" title="C_{\mathrm{TO\text{-}BE}} \;=\; S_{\mathrm{TO\text{-}BE}} \oplus \Delta_{\mathrm{custom}}"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mrow><mi mathvariant="normal">T</mi><mi mathvariant="normal">O</mi><mtext>-</mtext><mi mathvariant="normal">B</mi><mi mathvariant="normal">E</mi></mrow></msub><mtext>  </mtext><mo>=</mo><mtext>  </mtext><msub><mi>S</mi><mrow><mi mathvariant="normal">T</mi><mi mathvariant="normal">O</mi><mtext>-</mtext><mi mathvariant="normal">B</mi><mi mathvariant="normal">E</mi></mrow></msub><mo>⊕</mo><msub><mi mathvariant="normal">Δ</mi><mrow><mi mathvariant="normal">c</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">m</mi></mrow></msub></mrow><annotation encoding="application/x-tex">C_{\mathrm{TO\text{-}BE}} \;=\; S_{\mathrm{TO\text{-}BE}} \oplus \Delta_{\mathrm{custom}}</annotation></semantics></math></span><span class="formula-cap">그것을 갈 버전 표준 위에 다시 얹는다</span></div>
-      <div class="formula"><span class="formula-tag">Type 2</span><span class="tex" role="math" aria-label="patch sequence p1 to pn replayed onto standard TO-BE" title="P=\langle p_1,\,p_2,\,\ldots,\,p_n\rangle \;\longmapsto\; S_{\mathrm{TO\text{-}BE}}"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mo stretchy="false">⟨</mo><msub><mi>p</mi><mn>1</mn></msub><mo separator="true">,</mo><mtext> </mtext><msub><mi>p</mi><mn>2</mn></msub><mo separator="true">,</mo><mtext> </mtext><mo>…</mo><mo separator="true">,</mo><mtext> </mtext><msub><mi>p</mi><mi>n</mi></msub><mo stretchy="false">⟩</mo><mtext>  </mtext><mo>⟼</mo><mtext>  </mtext><msub><mi>S</mi><mrow><mi mathvariant="normal">T</mi><mi mathvariant="normal">O</mi><mtext>-</mtext><mi mathvariant="normal">B</mi><mi mathvariant="normal">E</mi></mrow></msub></mrow><annotation encoding="application/x-tex">P=\langle p_1,\,p_2,\,\ldots,\,p_n\rangle \;\longmapsto\; S_{\mathrm{TO\text{-}BE}}</annotation></semantics></math></span><span class="formula-cap">커밋 이력을 갈 버전 위에 재생 — 항상 사람이 한 번 봐야 한다</span></div>
-      <div class="formula"><span class="formula-tag">Limit</span><span class="tex" role="math" aria-label="sum of block sizes at most 200 kilobytes" title="\sum_i \lvert b_i \rvert \;\le\; 200\,\mathrm{KB}"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>∑</mo><mi>i</mi></msub><mo stretchy="false">∣</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false">∣</mo><mtext>  </mtext><mo>≤</mo><mtext>  </mtext><mn>200</mn><mtext> </mtext><mrow><mi mathvariant="normal">K</mi><mi mathvariant="normal">B</mi></mrow></mrow><annotation encoding="application/x-tex">\sum_i \lvert b_i \rvert \;\le\; 200\,\mathrm{KB}</annotation></semantics></math></span><span class="formula-cap">한 번에 넘기는 코드 분량 상한</span></div>
-    </div>
-  </div>
-
-  <!-- ═══ Phase 1 ═══ -->
-  <div class="phase">
-    <div class="phase-header">
-      <div class="phase-icon">🔵</div>
-      <div class="phase-title" style="color:#1976d2">Phase 1 · RAG 파이프라인 및 데이터 전처리</div>
-      <div class="phase-range">1 – 7</div>
-    </div>
-
-    <div class="section-banner banner-auto">🤖 백그라운드 자동 수행 — 사용자 개입 없이 스케줄러가 처리</div>
-
-    <!-- Step 1 -->
-    <div class="step done">
-      <div class="step-icon">✅</div>
-      <div class="step-num">1</div>
-      <div class="step-body">
-        <div class="step-title">레드마인 이슈 자동 수집</div>
-        <ul class="step-sub">
-          <li><span class="sub-icon">⏱️</span> 30분 간격으로 자동 실행</li>
-          <li><span class="sub-icon">📥</span> 마지막 동기화 시점 이후 변경된 이슈만 증분 수집 (72시간 안전 마진 적용)</li>
-          <li><span class="sub-icon">👤</span> 담당자 이름으로 Redmine 계정을 자동 조회 (내부 캐시 → API 순서로 확인)</li>
-          <li><span class="sub-icon">🔄</span> 기존 이슈의 담당자 변경·상태 변경도 자동으로 반영</li>
-        </ul>
+    <div class="summary">
+      <p><strong>8단계 완료 &middot; 4단계 부분 가동 &middot; 1단계 미구현.</strong></p>
+      <p>기계가 끝까지 밀어붙이지 않는다. 계획을 세우기 전에 한 번, 코드를 고친 뒤에 한 번,
+      사람이 판단하는 자리를 두고 그 사이만 자동으로 간다.</p>
+      <div class="meter">
+        <progress value="8" max="13">13단계 중 8단계 완료</progress>
+        <span class="meter-num">8 / 13</span>
       </div>
     </div>
 
-    <!-- Step 2 -->
-    <div class="step done">
-      <div class="step-icon">✅</div>
-      <div class="step-num">2</div>
-      <div class="step-body">
-        <div class="step-title">커스텀 유형 분류 + 영향도 전략 결정</div>
-        <ul class="step-sub">
-          <li><span class="sub-icon">🏷️</span> 2단계 분류: ① 레드마인 기능구분 필드 우선 확인 → ② 제목·설명 키워드 매칭 보완</li>
-        </ul>
-        <div class="type-row">
-          <div class="type-box t1">
-            <div class="type-box-title">Type 1 — 독립 커스텀</div>
-            <div class="types">ums_sync · ums_custom<br>hr_sync · resource_sync</div>
-          </div>
-          <div class="type-box t2">
-            <div class="type-box-title">Type 2 — 표준+커스텀 연동</div>
-            <div class="types">sso · apv_sync · apv_custom<br>report_custom · menu_custom · external_api</div>
-          </div>
-        </div>
-        <ul class="step-sub" style="margin-top:6px;">
-          <li><span class="sub-icon">⚖️</span> 두 유형이 섞인 이슈는 Type 2 전략 우선 적용</li>
-        </ul>
+    <section aria-labelledby="s1">
+      <h2 id="s1"><span class="n">01</span>전체 흐름</h2>
+      <figure>
+        <svg viewBox="0 0 820 196" role="img" aria-labelledby="f1-t" aria-describedby="f1-d"><title id="f1-t">담당 주체별 파이프라인</title><desc id="f1-d">자동 레인과 사람 레인으로 나눈 6구간. 수집·분류, 소스 확보까지는 자동이고, 7단계 인터뷰 선택에서 사람으로 넘어간다. 8단계 영향도 분석은 다시 자동, 9~10단계 수정안 심사는 사람, 11~13단계 빌드·회신은 자동이다.</desc><defs><marker id="a1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#a39e98"/></marker></defs><line x1="0" y1="28" x2="820" y2="28" stroke="rgba(0,0,0,0.07)" stroke-width="1"/><line x1="0" y1="108" x2="820" y2="108" stroke="rgba(0,0,0,0.07)" stroke-width="1"/><line x1="0" y1="188" x2="820" y2="188" stroke="rgba(0,0,0,0.07)" stroke-width="1"/><line x1="96" y1="28" x2="96" y2="188" stroke="rgba(0,0,0,0.07)" stroke-width="1"/><text x="48" y="72" text-anchor="middle" font-size="12" font-weight="600" fill="#a39e98">자동</text><text x="48" y="152" text-anchor="middle" font-size="12" font-weight="600" fill="#a39e98">사람</text><text x="152" y="20" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="10" font-weight="600" fill="#a39e98">1–3</text><rect x="104" y="44" width="96" height="44" rx="6" fill="#ffffff" stroke="rgba(0,0,0,0.22)" stroke-width="1"/><text x="152" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="rgba(0,0,0,0.95)">수집·분류</text><text x="268" y="20" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="10" font-weight="600" fill="#a39e98">4–6</text><rect x="220" y="44" width="96" height="44" rx="6" fill="#ffffff" stroke="rgba(0,0,0,0.22)" stroke-width="1"/><text x="268" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="rgba(0,0,0,0.95)">소스 확보</text><text x="384" y="20" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="10" font-weight="600" fill="#0075de">7</text><rect x="336" y="124" width="96" height="44" rx="6" fill="#eaf3fd" stroke="#0075de" stroke-width="1.4"/><text x="384" y="152" text-anchor="middle" font-size="13" font-weight="600" fill="#0075de">인터뷰 선택</text><text x="500" y="20" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="10" font-weight="600" fill="#a39e98">8</text><rect x="452" y="44" width="96" height="44" rx="6" fill="#ffffff" stroke="rgba(0,0,0,0.22)" stroke-width="1"/><text x="500" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="rgba(0,0,0,0.95)">영향도 분석</text><text x="616" y="20" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="10" font-weight="600" fill="#0075de">9–10</text><rect x="568" y="124" width="96" height="44" rx="6" fill="#eaf3fd" stroke="#0075de" stroke-width="1.4"/><text x="616" y="152" text-anchor="middle" font-size="13" font-weight="600" fill="#0075de">수정안 심사</text><text x="732" y="20" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="10" font-weight="600" fill="#a39e98">11–13</text><rect x="684" y="44" width="96" height="44" rx="6" fill="#ffffff" stroke="rgba(0,0,0,0.22)" stroke-width="1"/><text x="732" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="rgba(0,0,0,0.95)">빌드·회신</text><line x1="200" y1="68" x2="216" y2="68" stroke="#a39e98" stroke-width="1" marker-end="url(#a1)"/><path d="M316 68 H324 V148 H332" fill="none" stroke="#a39e98" stroke-width="1" marker-end="url(#a1)"/><path d="M432 148 H440 V68 H448" fill="none" stroke="#a39e98" stroke-width="1" marker-end="url(#a1)"/><path d="M548 68 H556 V148 H564" fill="none" stroke="#a39e98" stroke-width="1" marker-end="url(#a1)"/><path d="M664 148 H672 V68 H680" fill="none" stroke="#a39e98" stroke-width="1" marker-end="url(#a1)"/></svg>
+        <figcaption>표시된 두 칸이 <b>사람이 멈춰 세우는 자리</b>다 &mdash;
+        모호한 요구사항을 먼저 정리하고, 기계가 만든 수정안을 승인한다.
+        그 사이 구간은 자동으로 가고, 마지막 구간은 미리보기에서 멈춘다.</figcaption>
+      </figure>
+    </section>
+
+    <section aria-labelledby="s2">
+      <h2 id="s2"><span class="n">02</span>단계별 상태</h2>
+      <div class="tablecard">
+        <table>
+          <caption><b>표 1.</b> 13단계 현황. 상태는 완료 &middot; 부분 가동 &middot; 미구현 세 가지.</caption>
+          <tbody>
+        <tr class="grp"><th scope="rowgroup" colspan="4">수집·전처리</th></tr>
+        <tr><th scope="row" class="num">1</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="nm">레드마인 이슈 수집</td><td class="nt">30분 주기 증분 · 담당자·상태 변경까지</td></tr>
+        <tr><th scope="row" class="num">2</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="nm">커스텀 유형 분류</td><td class="nt">기능구분 필드 → 키워드 보완 · Type 1 / 2 전략</td></tr>
+        <tr><th scope="row" class="num">3</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="nm">임베딩 생성</td><td class="nt">유사 일감 검색용 벡터</td></tr>
+        <tr class="grp"><th scope="rowgroup" colspan="4">사람이 시작</th></tr>
+        <tr><th scope="row" class="num">4</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="nm">분류 결과 확인</td><td class="nt">업무·커스텀 유형 · AS-IS·TO-BE 버전</td></tr>
+        <tr><th scope="row" class="num">5</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="nm">소스 확보</td><td class="nt">GitLab 3단 탐색 · 실패 시 수동 경로</td></tr>
+        <tr><th scope="row" class="num">6</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="nm">신규 프로젝트 생성 질의</td><td class="nt">커스텀 프로젝트가 없을 때</td></tr>
+        <tr><th scope="row" class="num">7</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="nm">컨텍스트 조합</td><td class="nt">인터뷰를 할지 바로 계획으로 갈지 사람이 선택</td></tr>
+        <tr class="grp"><th scope="rowgroup" colspan="4">분석·수정</th></tr>
+        <tr><th scope="row" class="num">8</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="nm">영향도 분석</td><td class="nt">상태 그래프 · 호출 한도 가드 · 즉시 중단</td></tr>
+        <tr><th scope="row" class="num">9</th><td class="st"><span class="mk part" aria-hidden="true">◐</span><span class="stw part">부분 가동</span></td><td class="nm">결과 검토·수락</td><td class="nt">검토 관문을 수정 단계 승인으로 통합</td></tr>
+        <tr><th scope="row" class="num">10</th><td class="st"><span class="mk part" aria-hidden="true">◐</span><span class="stw part">부분 가동</span></td><td class="nm">코드 수정안 생성</td><td class="nt">격리 사본 · 2단계 승인 · 미리보기 고정</td></tr>
+        <tr class="grp"><th scope="rowgroup" colspan="4">빌드·회신</th></tr>
+        <tr><th scope="row" class="num">11</th><td class="st"><span class="mk part" aria-hidden="true">◐</span><span class="stw part">부분 가동</span></td><td class="nm">빌드·테스트</td><td class="nt">빌드는 가동 · 대상 소스 테스트 자동화 미완</td></tr>
+        <tr><th scope="row" class="num">12</th><td class="st"><span class="mk todo" aria-hidden="true">○</span><span class="stw todo">미구현</span></td><td class="nm">테스트 통과 판정</td><td class="nt">미구현</td></tr>
+        <tr><th scope="row" class="num">13</th><td class="st"><span class="mk part" aria-hidden="true">◐</span><span class="stw part">부분 가동</span></td><td class="nm">댓글·배포 메일</td><td class="nt">초안 생성 가동 · 자동 등록 미완</td></tr>
+          </tbody>
+        </table>
       </div>
-    </div>
+    </section>
 
-    <!-- Step 3 -->
-    <div class="step done">
-      <div class="step-icon">✅</div>
-      <div class="step-num">3</div>
-      <div class="step-body">
-        <div class="step-title">pgvector 임베딩 생성</div>
-        <ul class="step-sub">
-          <li><span class="sub-icon">🧬</span> 임베딩 모델로 이슈 텍스트를 벡터로 변환, 최대 500건씩 배치 처리</li>
-          <li><span class="sub-icon">🗄️</span> PostgreSQL + pgvector에 저장 → 유사 이슈 검색에 활용</li>
-        </ul>
-      </div>
-    </div>
+    <section aria-labelledby="s3">
+      <h2 id="s3"><span class="n">03</span>분석이 갈라지는 지점</h2>
+      <p class="lead">커스텀 코드가 표준과 얽혀 있는지에 따라 경로가 둘로 나뉜다. 두 유형이 섞인 이슈는 Type 2 로 본다.</p>
+      <figure>
+        <svg viewBox="0 0 820 316" role="img" aria-labelledby="f2-t" aria-describedby="f2-d"><title id="f2-t">영향도 분석의 두 경로</title><desc id="f2-d">커스텀 유형 분류 결과에서 시작해, 커스텀 코드가 표준과 얽혀 있는지를 판단한다. 아니면 Type 1 로 가서 표준 diff 위에서 커스텀 수정분을 뽑고, 얽혀 있으면 Type 2 로 가서 커밋 이력을 패치 순서로 재생한다. 두 경로는 합쳐져 충돌 지점과 위험도, 수정 계획을 낸다.</desc><defs><marker id="a2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#a39e98"/></marker></defs><rect x="316" y="4" width="192" height="32" rx="16" fill="#ffffff" stroke="rgba(0,0,0,0.22)" stroke-width="1"/><text x="412" y="24" text-anchor="middle" font-size="13" font-weight="600" fill="rgba(0,0,0,0.95)">커스텀 유형 분류 결과</text><line x1="412" y1="36" x2="412" y2="56" stroke="#a39e98" stroke-width="1" marker-end="url(#a2)"/><path d="M412 60 L536 100 L412 140 L288 100 Z" fill="#eaf3fd" stroke="#0075de" stroke-width="1.4"/><text x="412" y="96" text-anchor="middle" font-size="13" font-weight="700" fill="#0075de">표준 코드와</text><text x="412" y="112" text-anchor="middle" font-size="13" font-weight="700" fill="#0075de">얽혀 있는가</text><path d="M288 100 H160 V172" fill="none" stroke="#a39e98" stroke-width="1" marker-end="url(#a2)"/><text x="208" y="92" text-anchor="middle" font-size="12" font-weight="500" fill="#a39e98">아니오</text><path d="M536 100 H660 V172" fill="none" stroke="#a39e98" stroke-width="1" marker-end="url(#a2)"/><text x="612" y="92" text-anchor="middle" font-size="12" font-weight="500" fill="#a39e98">예 · 섞이면 이쪽</text><rect x="60" y="176" width="200" height="52" rx="6" fill="#ffffff" stroke="rgba(0,0,0,0.22)" stroke-width="1"/><text x="160" y="192" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="9" font-weight="600" fill="#a39e98">TYPE 1</text><text x="160" y="208" text-anchor="middle" font-size="13" font-weight="600" fill="rgba(0,0,0,0.95)">표준 diff 위에서</text><text x="160" y="224" text-anchor="middle" font-size="13" font-weight="600" fill="rgba(0,0,0,0.95)">커스텀 수정분 추출</text><rect x="560" y="176" width="200" height="52" rx="6" fill="#ffffff" stroke="rgba(0,0,0,0.22)" stroke-width="1"/><text x="660" y="192" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="9" font-weight="600" fill="#a39e98">TYPE 2</text><text x="660" y="208" text-anchor="middle" font-size="13" font-weight="600" fill="rgba(0,0,0,0.95)">커밋 이력을</text><text x="660" y="224" text-anchor="middle" font-size="13" font-weight="600" fill="rgba(0,0,0,0.95)">패치 순서로 재생</text><path d="M160 228 V256 H408" fill="none" stroke="#a39e98" stroke-width="1"/><path d="M660 228 V256 H416" fill="none" stroke="#a39e98" stroke-width="1"/><circle cx="412" cy="256" r="4" fill="#615d59"/><line x1="412" y1="260" x2="412" y2="276" stroke="#a39e98" stroke-width="1" marker-end="url(#a2)"/><rect x="272" y="280" width="280" height="32" rx="16" fill="#ffffff" stroke="rgba(0,0,0,0.22)" stroke-width="1"/><text x="412" y="300" text-anchor="middle" font-size="13" font-weight="600" fill="rgba(0,0,0,0.95)">충돌 지점 · 위험도 · 수정 계획</text></svg>
+        <figcaption>Type 1 은 표준에서 갈라진 부분만 뽑아 갈 버전에 다시 얹고,
+        Type 2 는 커밋 이력을 갈 버전 위에 재생한다. <b>Type 2 는 항상 사람이 한 번 봐야 한다.</b></figcaption>
+      </figure>
+    </section>
 
-    <div class="section-banner banner-human" style="margin-top:10px;">👤 사용자 액션 시작 — 개발자가 대시보드에서 직접 수행</div>
+    <section aria-labelledby="s4">
+      <h2 id="s4"><span class="n">04</span>13단계 밖에서 붙은 기능</h2>
+      <dl>
+        <div><dt>요구사항 인터뷰</dt><dd>계획을 세우기 전에 모호한 점을 사람에게 되묻는다.</dd></div>
+        <div><dt>작업 계약</dt><dd>인터뷰 결과를 완료 조건과 확인 방법으로 굳힌다.</dd></div>
+        <div><dt>2단계 승인</dt><dd>수정안 미리보기 → 사람 승인 → 필수 점검.</dd></div>
+        <div><dt>빌드 검증</dt><dd>갈 버전 환경에서, 손대기 전과 비교해 새로 생긴 오류만 본다.</dd></div>
+        <div><dt>첨부 처리</dt><dd>첨부 하나가 한 작업. 한국어 OCR 우선.</dd></div>
+        <div><dt>실시간 신호</dt><dd>어디까지 왔는지 · 누구 차례인지 · 끝났다는 알림.</dd></div>
+        <div><dt>AI 계정 대여</dt><dd>사용자별 계정으로 실행하고, 시간 단위로 빌려준다.</dd></div>
+        <div><dt>인프라·문서</dt><dd>VM 현황 · 버전별 DB 스키마 · 사내 문서 챗봇.</dd></div>
+      </dl>
+    </section>
 
-    <!-- Step 4 -->
-    <div class="step done">
-      <div class="step-icon">✅</div>
-      <div class="step-num">4</div>
-      <div class="step-body">
-        <div class="step-title">대시보드 접속 → 이슈 선택 → 분류 결과 확인</div>
-        <ul class="step-sub">
-          <li><span class="sub-icon">📋</span> 업무 유형 / 커스텀 유형 / AS-IS·TO-BE 버전 / 영향도 전략 확인</li>
-        </ul>
-      </div>
-    </div>
+    <section aria-labelledby="s5">
+      <h2 id="s5"><span class="n">05</span>남은 과제</h2>
+      <ol class="todo-list">
+        <li>대상 소스의 단위·E2E 테스트 자동화 (12단계)</li>
+        <li>Redmine 댓글 자동 등록 (13단계)</li>
+        <li>운영 자동화 3종 활성화 — 일감 완료 · 주간 회고 · 문서 모순 탐지</li>
+      </ol>
+    </section>
+  </main>
 
-    <!-- Step 5 -->
-    <div class="step done">
-      <div class="step-icon">✅</div>
-      <div class="step-num">5</div>
-      <div class="step-body">
-        <div class="step-title">GitLab 프로젝트 자동 탐색 — 3단계 순차 검색</div>
-        <ul class="step-sub">
-          <li><span class="sub-icon">🔍</span> 1단계: 명명 규칙으로 직접 경로 접근 시도</li>
-          <li><span class="sub-icon">🔍</span> 2단계: 그룹 내 키워드 검색</li>
-          <li><span class="sub-icon">🔍</span> 3단계: 루트 그룹 전체 검색</li>
-          <li><span class="sub-icon">⚠️</span> 3단계 모두 실패 시 → 개발자가 UI에서 수동 경로 입력</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- Step 6 -->
-    <div class="step done">
-      <div class="step-icon">✅</div>
-      <div class="step-num">6</div>
-      <div class="step-body">
-        <div class="step-title">커스텀 프로젝트 없을 경우 신규 생성 여부 확인</div>
-      </div>
-    </div>
-
-    <!-- Step 7 -->
-    <div class="step done">
-      <div class="step-icon">✅</div>
-      <div class="step-num">7</div>
-      <div class="step-body">
-        <div class="step-title">컨텍스트 조합 → AI 분석 시작</div>
-        <ul class="step-sub">
-          <li><span class="sub-icon">📦</span> 커스텀·표준 소스 위치 + 레드마인 일감 + 유사 일감 N개를 한 번에 전달</li>
-          <li><span class="sub-icon">🤖</span> 분석 시작 → 커스텀 유형에 따라 Type 1 또는 Type 2 경로로 자동 분기</li>
-          <li><span class="sub-icon">🗣️</span> 시작 전에 <strong>요구사항 인터뷰</strong>를 할지 바로 계획으로 갈지 사람이 선택 — 모호한 요구사항 위에 계획을 세우지 않기 위한 관문</li>
-          <li><span class="sub-icon">📚</span> 같은 사이트·모듈의 과거 변경 이력을 커밋 기록에서 확정 조회해 함께 전달 (추정이 아닌 사실)</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ Phase 2 ═══ -->
-  <div class="phase">
-    <div class="phase-header">
-      <div class="phase-icon">🟣</div>
-      <div class="phase-title" style="color:#8e24aa">Phase 2 · AI 영향도 분석 및 코드 자동화</div>
-      <div class="phase-range">8 – 10</div>
-    </div>
-
-    <!-- Step 8 -->
-    <div class="step done">
-      <div class="step-icon">✅</div>
-      <div class="step-num">8</div>
-      <div class="step-body">
-        <div class="step-title">
-          영향도 분석 실행 (Type 1 / Type 2 분기)
-          <span class="badge badge-done">가동 중</span>
-        </div>
-        <ul class="step-sub">
-          <li><span class="sub-icon">🧩</span> 상태 그래프(LangGraph) 기반 정식 경로로 전환 — 중단된 지점부터 재개, 사람 확인 지점 삽입 가능</li>
-          <li><span class="sub-icon">🛡️</span> AI 호출 한도 가드 <span class="inline-tex"><span class="tex" role="math" aria-label="at most 60 calls per hour and 300 per day" title="r_{\mathrm{hour}} \le 60 \;,\quad r_{\mathrm{day}} \le 300"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mrow><mi mathvariant="normal">h</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">r</mi></mrow></msub><mo>≤</mo><mn>60</mn><mtext>  </mtext><mo separator="true">,</mo><mspace width="1em"/><msub><mi>r</mi><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">y</mi></mrow></msub><mo>≤</mo><mn>300</mn></mrow><annotation encoding="application/x-tex">r_{\mathrm{hour}} \le 60 \;,\quad r_{\mathrm{day}} \le 300</annotation></semantics></math></span></span> — 시간·일 상한 + 한도 오류 시 자동 차단(반복 호출로 주간 한도를 태우지 않게)</li>
-          <li><span class="sub-icon">⏹️</span> 진행 중 분석 즉시 중단 지원 — 중단해도 다음 분석은 처음부터 새로 시작</li>
-        </ul>
-        <div class="type-row">
-          <div class="type-box t1">
-            <div class="type-box-title">🔵 Type 1 — 독립 커스텀</div>
-            <ul class="step-sub" style="margin:4px 0 0;">
-              <li><span class="sub-icon">①</span> 표준 AS-IS / TO-BE 버전 코드 로컬 캐시 확보</li>
-              <li><span class="sub-icon">②</span> 표준 AS-IS → TO-BE 변경 diff 생성</li>
-              <li><span class="sub-icon">③</span> 커스텀 AS-IS 코드 캐시 확보</li>
-              <li><span class="sub-icon">④</span> 표준 AS-IS와 커스텀 AS-IS를 비교해 커스텀 수정 패치(delta) 추출</li>
-              <li><span class="sub-icon">⑤</span> 관련 코드 블록만 선별 (200KB 상한 적용)</li>
-              <li><span class="sub-icon">⑥</span> Claude 분석 → 이식 시 충돌 지점 + 수정 계획</li>
-            </ul>
-          </div>
-          <div class="type-box t2">
-            <div class="type-box-title">🟣 Type 2 — 표준+커스텀 연동</div>
-            <ul class="step-sub" style="margin:4px 0 0;">
-              <li><span class="sub-icon">①</span> 커스텀 프로젝트 전체 커밋 이력을 패치 형태로 추출</li>
-              <li><span class="sub-icon">②</span> TO-BE 표준 코드 캐시 확보</li>
-              <li><span class="sub-icon">③</span> Claude 분석 → 커밋 이력 + TO-BE 표준 기준으로 재적용 충돌 지점 + 가이드 도출</li>
-              <li><span class="sub-icon">⚠️</span> 항상 수동 재적용 필요</li>
-            </ul>
-          </div>
-        </div>
-        <div class="output-box">
-          <div class="output-box-title">📋 공통 출력 결과</div>
-          <ul>
-            <li><span class="sub-icon">🎯</span> 위험도 판정: <span style="color:#2e7d32;font-weight:600;">낮음</span> / <span style="color:#e65100;font-weight:600;">중간</span> / <span style="color:#c62828;font-weight:600;">높음</span> + 충돌 지점 목록 + 수정 계획</li>
-            <li><span class="sub-icon">💬</span> Redmine 댓글 초안 자동 생성</li>
-            <li><span class="sub-icon">⚠️</span> JDK 21 마이그레이션 주의사항 자동 추가 (대상 버전 이상인 경우)</li>
-            <li><span class="sub-icon">❌</span> 커스텀 코드 미확보 등 치명적 오류 → "판단 불가" 처리</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 9 -->
-    <div class="step current">
-      <div class="step-icon">🔄</div>
-      <div class="step-num">9</div>
-      <div class="step-body">
-        <div class="step-title">
-          분석 결과 표시 → 개발자 검토 후 수락
-          <span class="badge badge-current">부분 가동</span>
-        </div>
-        <ul class="step-sub">
-          <li><span class="sub-icon">🖥️</span> 어떤 파일을 어떻게 수정할지 diff 형태로 대시보드에 표시</li>
-          <li><span class="sub-icon">🔀</span> 분석 단계에 따로 있던 검토 관문을 <strong>수정 단계의 승인 관문으로 통합</strong> — 승인 지점이 두 곳으로 갈려 아무도 보지 않던 검토 대기가 쌓이던 문제를 정리</li>
-          <li><span class="sub-icon">✏️</span> 개발자가 프롬프트를 추가 입력해 재분석 요청 <span class="tag tag-todo">예정</span></li>
-        </ul>
-      </div>
-    </div>
-    <!-- Step 10 -->
-    <div class="step current">
-      <div class="step-icon">🔄</div>
-      <div class="step-num">10</div>
-      <div class="step-body">
-        <div class="step-title">
-          코드 수정안 자동 생성 → 개발자 확인
-          <span class="badge badge-current">부분 가동</span>
-        </div>
-        <ul class="step-sub">
-          <li><span class="sub-icon">📦</span> 작업본을 격리한 사본에서 수정 — 원본 소스와 표준 모듈은 건드리지 않음</li>
-          <li><span class="sub-icon">🔒</span> 외부 통신 허용 목록을 둔 샌드박스 안에서 실행</li>
-          <li><span class="sub-icon">2️⃣</span> 두 단계로 나뉨 — ① 요구사항 수정안(미리보기) → <strong>사람 승인</strong> → ② 필수 점검(버전 이관 시 확인해야 하는 항목)</li>
-          <li><span class="sub-icon">🔨</span> 갈 버전 환경에서 빌드 검증 — 손대기 전과 비교해 <span class="inline-tex"><span class="tex" role="math" aria-label="new errors equal errors after minus errors before" title="E_{\mathrm{new}} \;=\; E_{\mathrm{after}} \setminus E_{\mathrm{before}}"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">w</mi></mrow></msub><mtext>  </mtext><mo>=</mo><mtext>  </mtext><msub><mi>E</mi><mrow><mi mathvariant="normal">a</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">r</mi></mrow></msub><mo>∖</mo><msub><mi>E</mi><mrow><mi mathvariant="normal">b</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">e</mi></mrow></msub></mrow><annotation encoding="application/x-tex">E_{\mathrm{new}} \;=\; E_{\mathrm{after}} \setminus E_{\mathrm{before}}</annotation></semantics></math></span></span> 이 수정이 만든 오류만 골라냄</li>
-          <li><span class="sub-icon">🛑</span> 미리보기 고정 · 자동 PR·푸시 금지 <span class="tag tag-warn">안전장치 유지</span></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ Phase 3 ═══ -->
-  <div class="phase">
-    <div class="phase-header">
-      <div class="phase-icon">🟢</div>
-      <div class="phase-title" style="color:#2e7d32">Phase 3 · E2E 테스트 및 CI/CD</div>
-      <div class="phase-range">11 – 12</div>
-    </div>
-
-    <!-- Step 11 -->
-    <div class="step current">
-      <div class="step-icon">🔄</div>
-      <div class="step-num">11</div>
-      <div class="step-body">
-        <div class="step-title">
-          빌드 및 자동화 테스트
-          <span class="badge badge-current">부분 가동</span>
-        </div>
-        <ul class="step-sub">
-          <li><span class="sub-icon">🔨</span> 빌드 오케스트레이션 가동 — 모듈별 빌드·산출물 수집</li>
-          <li><span class="sub-icon">🧪</span> 빌드 사전 검증(필요 이미지·의존성 확인) · 서버 모듈 산출물 정규화 · 의존성 캐시 이미지</li>
-          <li><span class="sub-icon">🐳</span> 도커 인프라에 패치 배포 후 재시작 → E2E <span class="tag tag-todo">미구현</span></li>
-          <li><span class="sub-icon">⚠️</span> 대상 소스의 단위 테스트 자동화는 아직 없음 <span class="tag tag-warn">남은 과제</span></li>
-        </ul>
-      </div>
-    </div>
-    <!-- Step 12 -->
-    <div class="step todo">
-      <div class="step-icon">⬜</div>
-      <div class="step-num">12</div>
-      <div class="step-body">
-        <div class="step-title">테스트 통과 → 완료</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ Phase 4 ═══ -->
-  <div class="phase">
-    <div class="phase-header">
-      <div class="phase-icon">🟠</div>
-      <div class="phase-title" style="color:#e65100">Phase 4 · MCP Server 연동</div>
-      <div class="phase-range">13</div>
-    </div>
-
-    <!-- Step 13 -->
-    <div class="step current">
-      <div class="step-icon">🔄</div>
-      <div class="step-num">13</div>
-      <div class="step-body">
-        <div class="step-title">
-          레드마인 댓글 자동 등록 + 배포 메일 발송
-          <span class="badge badge-current">부분 가동</span>
-        </div>
-        <ul class="step-sub">
-          <li><span class="sub-icon">📝</span> 분석 결과로 Redmine 댓글 초안 자동 생성 — 자동 등록은 <span class="tag tag-todo">미구현</span></li>
-          <li><span class="sub-icon">📧</span> 패치·배포 메일은 <strong>미리보기 → 확인</strong> 두 단계 — 사람이 승인한 뒤에만 발송</li>
-          <li><span class="sub-icon">📊</span> 구글 드라이브 DML을 MCP로 읽어 테이블 구조 자동 확인 <span class="tag tag-warn">검토 중</span></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ 13단계 외 추가 구축 ═══ -->
-  <div class="phase">
-    <div class="phase-header">
-      <div class="phase-icon">🆕</div>
-      <div class="phase-title" style="color:#00838f">13단계 외 추가 구축</div>
-      <div class="phase-range">2026-06 ~ 08</div>
-    </div>
-    <div class="section-banner banner-human">13단계 파이프라인 위에 운영·품질 축이 붙어, 분석 도구를 넘어 업무 플랫폼으로 넓어진 부분</div>
-
-    <div class="output-box">
-      <div class="output-box-title">🗣️ 요구사항 인터뷰 우선 흐름</div>
-      <ul>
-        <li><span class="sub-icon">❓</span> 계획을 세우기 전에 모호한 점을 사람에게 되묻고, 그 답을 실행 계약(목표 · 완료 조건 · 확인 방법)으로 굳힘</li>
-        <li><span class="sub-icon">📏</span> 모호성 점수는 측정값만 표시 — 아직 못 잰 구간은 "재지 않음"으로 그대로 표기</li>
-        <li><span class="sub-icon">✅</span> 완료 조건 중 기계가 볼 수 있는 것(표준 미수정 · 사이트 격리 · 빌드 성공 등)은 자동 판정, 나머지는 사람 확인으로 명시</li>
-      </ul>
-    </div>
-
-    <div class="output-box">
-      <div class="output-box-title">📎 첨부 처리 — 첨부 단위 작업</div>
-      <ul>
-        <li><span class="sub-icon">✂️</span> 작업 단위를 일감 → 첨부 하나로 내림. 한 파일이 오래 걸려도 나머지 파일과 마무리는 그대로 진행</li>
-        <li><span class="sub-icon">💾</span> 성공한 파일은 그 자리에서 저장 — 재시도가 앞에서 한 일을 되돌리지 않음</li>
-        <li><span class="sub-icon">👁️</span> 어떤 파일에서 무엇을 하는 중인지(다운로드 · 변환 · OCR) 화면에 실시간 표시</li>
-        <li><span class="sub-icon">🔤</span> 한국어 OCR 우선 적용 후 단계별 폴백 — 이미지·PDF 첨부에서 본문 확보</li>
-      </ul>
-    </div>
-
-    <div class="output-box">
-      <div class="output-box-title">🔔 목록·대시보드 실시간 신호</div>
-      <ul>
-        <li><span class="sub-icon">🚩</span> 일감이 어디까지 왔는지 목록에서 바로 보임 — 시작 전 / 인터뷰 중 / 계획 완료 / 코드 변경안 있음 / 처리 불가</li>
-        <li><span class="sub-icon">👤</span> "누구 차례"를 구분 — 답변 대기 · 승인 대기 · 멈춤</li>
-        <li><span class="sub-icon">📬</span> 작업이 끝나면 어느 화면에 있어도 알림 + 클릭 이동</li>
-        <li><span class="sub-icon">⚡</span> 상세에서 바꾸면 목록·대시보드에 즉시 반영 (새로고침 불필요)</li>
-      </ul>
-    </div>
-
-    <div class="output-box">
-      <div class="output-box-title">🧰 운영 축</div>
-      <ul>
-        <li><span class="sub-icon">🤖</span> 사용자별 AI 계정 + 시간 단위 대여 — 분석·챗봇·수정이 요청자 계정으로 실행</li>
-        <li><span class="sub-icon">⚙️</span> 반복 운영 작업 자동화 틀(일감 자동완료 · 주간 회고 기록 등) — 3종 등록, 활성화 대기 <span class="tag tag-warn">운영 전환 전</span></li>
-        <li><span class="sub-icon">🖥️</span> 인프라 현황 탭 — VM 현황·점유, 도커 서버, 빌드 환경, 버전별 표준 DB 스키마 비교</li>
-        <li><span class="sub-icon">💬</span> 사내 문서 RAG 챗봇 — 문서 + 함수 단위 코드 검색, 벡터와 전문 검색을 함께 사용</li>
-      </ul>
-    </div>
-
-    <div class="output-box">
-      <div class="output-box-title">🛡️ 품질·보안</div>
-      <ul>
-        <li><span class="sub-icon">🧪</span> API 회귀 테스트 추가 · 첨부 파싱 결과의 스크립트 삽입 차단</li>
-        <li><span class="sub-icon">🔇</span> 조용히 삼켜지던 실패 지점에 로깅 추가 — 문제가 눈에 보이게</li>
-        <li><span class="sub-icon">🔒</span> 개발용 코드 편집기를 대시보드 로그인 세션으로 게이트 (별도 비밀번호 제거)</li>
-      </ul>
-    </div>
-  </div>
+  <footer>
+    <p><sup>1</sup>코드 수정은 미리보기(dry-run)에 고정돼 있고 자동 푸시·PR 은 막아 뒀다. 사람이 승인한 뒤에만 다음 단계로 간다.</p>
+    <p><sup>2</sup>AI 호출에는 시간·일 상한과 차단 장치가 걸려 있다. 자동 경로에서 분석을 대량으로 부르지 않는다.</p>
+  </footer>
 
 </div>
 </body>
