@@ -81,7 +81,7 @@
     }
     .bar-fill {
       height: 100%;
-      width: calc(7 / 13 * 100%);
+      width: calc(8 / 13 * 100%);
       background: linear-gradient(90deg, #4caf50, #81c784);
       border-radius: 99px;
     }
@@ -245,13 +245,13 @@
   <!-- 헤더 -->
   <div class="page-header">
     <div class="page-title">🏭 AI 업무 자동화 워크플로우</div>
-    <div class="page-subtitle">넷앤드 Redmine 이슈 처리 자동화 파이프라인 — 2026-05-15 기준</div>
+    <div class="page-subtitle">넷앤드 Redmine 이슈 처리 자동화 파이프라인 — 2026-08-21 기준</div>
   </div>
 
   <!-- 범례 -->
   <div class="legend">
     <div class="legend-item"><span>✅</span> 구현 완료</div>
-    <div class="legend-item"><span>🔄</span> 현재 진행 지점</div>
+    <div class="legend-item"><span>🔄</span> 부분 가동 (동작하지만 아직 사람 손이 필요)</div>
     <div class="legend-item"><span>⬜</span> 미구현 (예정)</div>
     <div class="legend-item"><div class="legend-dot" style="background:#1976d2"></div> Phase 1 — RAG / 데이터</div>
     <div class="legend-item"><div class="legend-dot" style="background:#8e24aa"></div> Phase 2 — AI 분석</div>
@@ -263,7 +263,7 @@
   <div class="progress-bar-wrap">
     <div class="progress-label">
       전체 진행 현황
-      <span class="progress-count">7 / 13 단계 완료</span>
+      <span class="progress-count">8 완료 · 4 부분 가동 · 1 미구현</span>
     </div>
     <div class="bar"><div class="bar-fill"></div></div>
   </div>
@@ -369,18 +369,17 @@
       </div>
     </div>
 
-    <!-- Step 7 (current) -->
-    <div class="step current">
-      <div class="step-icon">🔄</div>
+    <!-- Step 7 -->
+    <div class="step done">
+      <div class="step-icon">✅</div>
       <div class="step-num">7</div>
       <div class="step-body">
-        <div class="step-title">
-          컨텍스트 조합 → Claude 분석 시작
-          <span class="badge badge-current">현재 진행 지점</span>
-        </div>
+        <div class="step-title">컨텍스트 조합 → AI 분석 시작</div>
         <ul class="step-sub">
-          <li><span class="sub-icon">📦</span> 커스텀·표준 소스 위치 + 레드마인 일감 + pgvector 유사 일감 N개를 한 번에 전달</li>
-          <li><span class="sub-icon">🤖</span> 분석 버튼 클릭 → 커스텀 유형에 따라 Type 1 또는 Type 2 경로로 자동 분기</li>
+          <li><span class="sub-icon">📦</span> 커스텀·표준 소스 위치 + 레드마인 일감 + 유사 일감 N개를 한 번에 전달</li>
+          <li><span class="sub-icon">🤖</span> 분석 시작 → 커스텀 유형에 따라 Type 1 또는 Type 2 경로로 자동 분기</li>
+          <li><span class="sub-icon">🗣️</span> 시작 전에 <strong>요구사항 인터뷰</strong>를 할지 바로 계획으로 갈지 사람이 선택 — 모호한 요구사항 위에 계획을 세우지 않기 위한 관문</li>
+          <li><span class="sub-icon">📚</span> 같은 사이트·모듈의 과거 변경 이력을 커밋 기록에서 확정 조회해 함께 전달 (추정이 아닌 사실)</li>
         </ul>
       </div>
     </div>
@@ -395,11 +394,19 @@
     </div>
 
     <!-- Step 8 -->
-    <div class="step todo">
-      <div class="step-icon">⬜</div>
+    <div class="step done">
+      <div class="step-icon">✅</div>
       <div class="step-num">8</div>
       <div class="step-body">
-        <div class="step-title">영향도 분석 실행 (Type 1 / Type 2 분기)</div>
+        <div class="step-title">
+          영향도 분석 실행 (Type 1 / Type 2 분기)
+          <span class="badge badge-done">가동 중</span>
+        </div>
+        <ul class="step-sub">
+          <li><span class="sub-icon">🧩</span> 상태 그래프(LangGraph) 기반 정식 경로로 전환 — 중단된 지점부터 재개, 사람 확인 지점 삽입 가능</li>
+          <li><span class="sub-icon">🛡️</span> AI 호출 한도 가드 — 시간·일 상한 + 한도 오류 시 자동 차단(반복 호출로 주간 한도를 태우지 않게)</li>
+          <li><span class="sub-icon">⏹️</span> 진행 중 분석 즉시 중단 지원 — 중단해도 다음 분석은 처음부터 새로 시작</li>
+        </ul>
         <div class="type-row">
           <div class="type-box t1">
             <div class="type-box-title">🔵 Type 1 — 독립 커스텀</div>
@@ -435,27 +442,36 @@
     </div>
 
     <!-- Step 9 -->
-    <div class="step todo">
-      <div class="step-icon">⬜</div>
+    <div class="step current">
+      <div class="step-icon">🔄</div>
       <div class="step-num">9</div>
       <div class="step-body">
-        <div class="step-title">분석 결과 표시 → 개발자 검토 후 수락</div>
+        <div class="step-title">
+          분석 결과 표시 → 개발자 검토 후 수락
+          <span class="badge badge-current">부분 가동</span>
+        </div>
         <ul class="step-sub">
           <li><span class="sub-icon">🖥️</span> 어떤 파일을 어떻게 수정할지 diff 형태로 대시보드에 표시</li>
-          <li><span class="sub-icon">✏️</span> 개발자가 프롬프트를 추가로 입력하여 재분석 요청 가능 (예정)</li>
-          <li><span class="sub-icon">✅</span> 수락 후 개발 진행</li>
+          <li><span class="sub-icon">🔀</span> 분석 단계에 따로 있던 검토 관문을 <strong>수정 단계의 승인 관문으로 통합</strong> — 승인 지점이 두 곳으로 갈려 아무도 보지 않던 검토 대기가 쌓이던 문제를 정리</li>
+          <li><span class="sub-icon">✏️</span> 개발자가 프롬프트를 추가 입력해 재분석 요청 <span class="tag tag-todo">예정</span></li>
         </ul>
       </div>
     </div>
-
     <!-- Step 10 -->
-    <div class="step todo">
-      <div class="step-icon">⬜</div>
+    <div class="step current">
+      <div class="step-icon">🔄</div>
       <div class="step-num">10</div>
       <div class="step-body">
-        <div class="step-title">개발된 코드 최종 확인 → git 커밋</div>
+        <div class="step-title">
+          코드 수정안 자동 생성 → 개발자 확인
+          <span class="badge badge-current">부분 가동</span>
+        </div>
         <ul class="step-sub">
-          <li><span class="sub-icon">👁️</span> 개발자가 변경 내용을 직접 검토 후 커밋</li>
+          <li><span class="sub-icon">📦</span> 작업본을 격리한 사본에서 수정 — 원본 소스와 표준 모듈은 건드리지 않음</li>
+          <li><span class="sub-icon">🔒</span> 외부 통신 허용 목록을 둔 샌드박스 안에서 실행</li>
+          <li><span class="sub-icon">2️⃣</span> 두 단계로 나뉨 — ① 요구사항 수정안(미리보기) → <strong>사람 승인</strong> → ② 필수 점검(버전 이관 시 확인해야 하는 항목)</li>
+          <li><span class="sub-icon">🔨</span> 갈 버전 환경에서 빌드 검증 — 손대기 전 상태와 비교해 이 수정이 만든 오류만 골라냄</li>
+          <li><span class="sub-icon">🛑</span> 미리보기 고정 · 자동 PR·푸시 금지 <span class="tag tag-warn">안전장치 유지</span></li>
         </ul>
       </div>
     </div>
@@ -470,18 +486,22 @@
     </div>
 
     <!-- Step 11 -->
-    <div class="step todo">
-      <div class="step-icon">⬜</div>
+    <div class="step current">
+      <div class="step-icon">🔄</div>
       <div class="step-num">11</div>
       <div class="step-body">
-        <div class="step-title">빌드 및 자동화 테스트</div>
+        <div class="step-title">
+          빌드 및 자동화 테스트
+          <span class="badge badge-current">부분 가동</span>
+        </div>
         <ul class="step-sub">
-          <li><span class="sub-icon">🔨</span> CI/CD 파이프라인에서 빌드 후 JUnit 단위 테스트 실행</li>
-          <li><span class="sub-icon">🐳</span> 도커 인프라에 패치 배포 후 재시작 → E2E 테스트 (JUnit 통과 시 스킵 가능)</li>
+          <li><span class="sub-icon">🔨</span> 빌드 오케스트레이션 가동 — 모듈별 빌드·산출물 수집</li>
+          <li><span class="sub-icon">🧪</span> 빌드 사전 검증(필요 이미지·의존성 확인) · 서버 모듈 산출물 정규화 · 의존성 캐시 이미지</li>
+          <li><span class="sub-icon">🐳</span> 도커 인프라에 패치 배포 후 재시작 → E2E <span class="tag tag-todo">미구현</span></li>
+          <li><span class="sub-icon">⚠️</span> 대상 소스의 단위 테스트 자동화는 아직 없음 <span class="tag tag-warn">남은 과제</span></li>
         </ul>
       </div>
     </div>
-
     <!-- Step 12 -->
     <div class="step todo">
       <div class="step-icon">⬜</div>
@@ -501,17 +521,78 @@
     </div>
 
     <!-- Step 13 -->
-    <div class="step todo">
-      <div class="step-icon">⬜</div>
+    <div class="step current">
+      <div class="step-icon">🔄</div>
       <div class="step-num">13</div>
       <div class="step-body">
-        <div class="step-title">레드마인 댓글 자동 등록 + 배포 메일 발송</div>
+        <div class="step-title">
+          레드마인 댓글 자동 등록 + 배포 메일 발송
+          <span class="badge badge-current">부분 가동</span>
+        </div>
         <ul class="step-sub">
-          <li><span class="sub-icon">📝</span> AI 분석 결과로 생성된 Redmine 댓글 초안을 MCP를 통해 자동 등록</li>
-          <li><span class="sub-icon">📧</span> 로그인한 사용자 계정 정보로 배포 완료 메일 발송</li>
+          <li><span class="sub-icon">📝</span> 분석 결과로 Redmine 댓글 초안 자동 생성 — 자동 등록은 <span class="tag tag-todo">미구현</span></li>
+          <li><span class="sub-icon">📧</span> 패치·배포 메일은 <strong>미리보기 → 확인</strong> 두 단계 — 사람이 승인한 뒤에만 발송</li>
           <li><span class="sub-icon">📊</span> 구글 드라이브 DML을 MCP로 읽어 테이블 구조 자동 확인 <span class="tag tag-warn">검토 중</span></li>
         </ul>
       </div>
+    </div>
+  </div>
+
+  <!-- ═══ 13단계 외 추가 구축 ═══ -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-icon">🆕</div>
+      <div class="phase-title" style="color:#00838f">13단계 외 추가 구축</div>
+      <div class="phase-range">2026-06 ~ 08</div>
+    </div>
+    <div class="section-banner banner-human">13단계 파이프라인 위에 운영·품질 축이 붙어, 분석 도구를 넘어 업무 플랫폼으로 넓어진 부분</div>
+
+    <div class="output-box">
+      <div class="output-box-title">🗣️ 요구사항 인터뷰 우선 흐름</div>
+      <ul>
+        <li><span class="sub-icon">❓</span> 계획을 세우기 전에 모호한 점을 사람에게 되묻고, 그 답을 실행 계약(목표 · 완료 조건 · 확인 방법)으로 굳힘</li>
+        <li><span class="sub-icon">📏</span> 모호성 점수는 측정값만 표시 — 아직 못 잰 구간은 "재지 않음"으로 그대로 표기</li>
+        <li><span class="sub-icon">✅</span> 완료 조건 중 기계가 볼 수 있는 것(표준 미수정 · 사이트 격리 · 빌드 성공 등)은 자동 판정, 나머지는 사람 확인으로 명시</li>
+      </ul>
+    </div>
+
+    <div class="output-box">
+      <div class="output-box-title">📎 첨부 처리 — 첨부 단위 작업</div>
+      <ul>
+        <li><span class="sub-icon">✂️</span> 작업 단위를 일감 → 첨부 하나로 내림. 한 파일이 오래 걸려도 나머지 파일과 마무리는 그대로 진행</li>
+        <li><span class="sub-icon">💾</span> 성공한 파일은 그 자리에서 저장 — 재시도가 앞에서 한 일을 되돌리지 않음</li>
+        <li><span class="sub-icon">👁️</span> 어떤 파일에서 무엇을 하는 중인지(다운로드 · 변환 · OCR) 화면에 실시간 표시</li>
+        <li><span class="sub-icon">🔤</span> 한국어 OCR 우선 적용 후 단계별 폴백 — 이미지·PDF 첨부에서 본문 확보</li>
+      </ul>
+    </div>
+
+    <div class="output-box">
+      <div class="output-box-title">🔔 목록·대시보드 실시간 신호</div>
+      <ul>
+        <li><span class="sub-icon">🚩</span> 일감이 어디까지 왔는지 목록에서 바로 보임 — 시작 전 / 인터뷰 중 / 계획 완료 / 코드 변경안 있음 / 처리 불가</li>
+        <li><span class="sub-icon">👤</span> "누구 차례"를 구분 — 답변 대기 · 승인 대기 · 멈춤</li>
+        <li><span class="sub-icon">📬</span> 작업이 끝나면 어느 화면에 있어도 알림 + 클릭 이동</li>
+        <li><span class="sub-icon">⚡</span> 상세에서 바꾸면 목록·대시보드에 즉시 반영 (새로고침 불필요)</li>
+      </ul>
+    </div>
+
+    <div class="output-box">
+      <div class="output-box-title">🧰 운영 축</div>
+      <ul>
+        <li><span class="sub-icon">🤖</span> 사용자별 AI 계정 + 시간 단위 대여 — 분석·챗봇·수정이 요청자 계정으로 실행</li>
+        <li><span class="sub-icon">⚙️</span> 반복 운영 작업 자동화 틀(일감 자동완료 · 주간 회고 기록 등) — 3종 등록, 활성화 대기 <span class="tag tag-warn">운영 전환 전</span></li>
+        <li><span class="sub-icon">🖥️</span> 인프라 현황 탭 — VM 현황·점유, 도커 서버, 빌드 환경, 버전별 표준 DB 스키마 비교</li>
+        <li><span class="sub-icon">💬</span> 사내 문서 RAG 챗봇 — 문서 + 함수 단위 코드 검색, 벡터와 전문 검색을 함께 사용</li>
+      </ul>
+    </div>
+
+    <div class="output-box">
+      <div class="output-box-title">🛡️ 품질·보안</div>
+      <ul>
+        <li><span class="sub-icon">🧪</span> API 회귀 테스트 추가 · 첨부 파싱 결과의 스크립트 삽입 차단</li>
+        <li><span class="sub-icon">🔇</span> 조용히 삼켜지던 실패 지점에 로깅 추가 — 문제가 눈에 보이게</li>
+        <li><span class="sub-icon">🔒</span> 개발용 코드 편집기를 대시보드 로그인 세션으로 게이트 (별도 비밀번호 제거)</li>
+      </ul>
     </div>
   </div>
 
