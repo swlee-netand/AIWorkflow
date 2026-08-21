@@ -96,6 +96,7 @@
   caption b { color: rgba(0,0,0,0.95); font-weight: 700; }
   tbody th, tbody td { padding: 9px 12px; vertical-align: baseline; font-weight: 400; }
   tbody tr + tr th, tbody tr + tr td { border-top: 1px solid rgba(0,0,0,0.045); }
+  tr.grp .gn { font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace; color: #0075de; margin-right: 8px; }
   tr.grp th {
     text-align: left; padding: 12px 20px 6px;
     font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
@@ -103,17 +104,18 @@
     border-top: 1px solid rgba(0,0,0,0.07) !important;
   }
   tbody tr.grp:first-child th { border-top: 0 !important; }
-  th.num {
-    width: 44px; padding-left: 20px; text-align: left;
-    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace; font-size: 12px; color: #a39e98;
+  th.nm {
+    width: 190px; padding-left: 20px; text-align: left; font-weight: 600;
   }
-  td.st { width: 104px; white-space: nowrap; }
+  td.st { width: 84px; white-space: nowrap; }
+  td.og {
+    width: 56px; font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace; font-size: 11.5px; color: #a39e98;
+  }
   .mk { font-size: 10px; margin-right: 6px; }
   .stw { font-size: 12px; font-weight: 700; }
   .done { color: #1aae39; }
   .part { color: #0075de; }
   .todo { color: #a39e98; }
-  td.nm { width: 190px; font-weight: 600; }
   td.nt { color: #615d59; font-size: 13px; padding-right: 20px; }
 
   /* ── 정의 목록 (기능) ── */
@@ -145,10 +147,9 @@
 
   @media (max-width: 720px) {
     h1 { font-size: 22px; }
-    td.nm, dt { width: auto; }
-    td.st { width: 88px; }
-    dl > div { flex-direction: column; gap: 2px; }
-    th.num { width: 34px; padding-left: 12px; }
+    th.nm { width: auto; padding-left: 12px; }
+    td.st { width: 76px; }
+    td.og { display: none; }
     td.nt { padding-right: 12px; }
   }
 </style>
@@ -166,51 +167,66 @@
 
   <main id="main">
     <h1>커스텀 자동화 워크플로우</h1>
-    <p class="sub">고객사 Redmine 이슈를 받아 유형을 가르고, 영향도를 분석해 코드 수정안까지 만드는 13단계 파이프라인.</p>
+    <p class="sub">고객사 Redmine 이슈를 받아 요구사항을 확정하고, 영향도를 분석해 코드 수정안까지 만든다.</p>
 
     <div class="summary">
-      <p><strong>8단계 완료 &middot; 4단계 부분 가동 &middot; 1단계 미구현.</strong></p>
+      <p><strong>완료 16 · 부분 6 · 미구현 1.</strong></p>
       <p>기계가 끝까지 밀어붙이지 않는다. 계획을 세우기 전에 한 번, 코드를 고친 뒤에 한 번,
       사람이 판단하는 자리를 두고 그 사이만 자동으로 간다.</p>
       <div class="meter">
-        <progress value="8" max="13">13단계 중 8단계 완료</progress>
-        <span class="meter-num">8 / 13</span>
+        <progress value="16" max="23">23개 항목 중 16개 완료</progress>
+        <span class="meter-num">16 / 23</span>
       </div>
     </div>
 
     <section aria-labelledby="s1">
       <h2 id="s1"><span class="n">01</span>전체 흐름</h2>
       <figure>
-        <svg viewBox="0 0 820 196" role="img" aria-labelledby="f1-t" aria-describedby="f1-d"><title id="f1-t">담당 주체별 파이프라인</title><desc id="f1-d">자동 레인과 사람 레인으로 나눈 6구간. 수집·분류, 소스 확보까지는 자동이고, 7단계 인터뷰 선택에서 사람으로 넘어간다. 8단계 영향도 분석은 다시 자동, 9~10단계 수정안 심사는 사람, 11~13단계 빌드·회신은 자동이다.</desc><defs><marker id="a1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#a39e98"/></marker></defs><line x1="0" y1="28" x2="820" y2="28" stroke="rgba(0,0,0,0.07)" stroke-width="1"/><line x1="0" y1="108" x2="820" y2="108" stroke="rgba(0,0,0,0.07)" stroke-width="1"/><line x1="0" y1="188" x2="820" y2="188" stroke="rgba(0,0,0,0.07)" stroke-width="1"/><line x1="96" y1="28" x2="96" y2="188" stroke="rgba(0,0,0,0.07)" stroke-width="1"/><text x="48" y="72" text-anchor="middle" font-size="12" font-weight="600" fill="#a39e98">자동</text><text x="48" y="152" text-anchor="middle" font-size="12" font-weight="600" fill="#a39e98">사람</text><text x="152" y="20" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="10" font-weight="600" fill="#a39e98">1–3</text><rect x="104" y="44" width="96" height="44" rx="6" fill="#ffffff" stroke="rgba(0,0,0,0.22)" stroke-width="1"/><text x="152" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="rgba(0,0,0,0.95)">수집·분류</text><text x="268" y="20" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="10" font-weight="600" fill="#a39e98">4–6</text><rect x="220" y="44" width="96" height="44" rx="6" fill="#ffffff" stroke="rgba(0,0,0,0.22)" stroke-width="1"/><text x="268" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="rgba(0,0,0,0.95)">소스 확보</text><text x="384" y="20" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="10" font-weight="600" fill="#0075de">7</text><rect x="336" y="124" width="96" height="44" rx="6" fill="#eaf3fd" stroke="#0075de" stroke-width="1.4"/><text x="384" y="152" text-anchor="middle" font-size="13" font-weight="600" fill="#0075de">인터뷰 선택</text><text x="500" y="20" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="10" font-weight="600" fill="#a39e98">8</text><rect x="452" y="44" width="96" height="44" rx="6" fill="#ffffff" stroke="rgba(0,0,0,0.22)" stroke-width="1"/><text x="500" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="rgba(0,0,0,0.95)">영향도 분석</text><text x="616" y="20" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="10" font-weight="600" fill="#0075de">9–10</text><rect x="568" y="124" width="96" height="44" rx="6" fill="#eaf3fd" stroke="#0075de" stroke-width="1.4"/><text x="616" y="152" text-anchor="middle" font-size="13" font-weight="600" fill="#0075de">수정안 심사</text><text x="732" y="20" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="10" font-weight="600" fill="#a39e98">11–13</text><rect x="684" y="44" width="96" height="44" rx="6" fill="#ffffff" stroke="rgba(0,0,0,0.22)" stroke-width="1"/><text x="732" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="rgba(0,0,0,0.95)">빌드·회신</text><line x1="200" y1="68" x2="216" y2="68" stroke="#a39e98" stroke-width="1" marker-end="url(#a1)"/><path d="M316 68 H324 V148 H332" fill="none" stroke="#a39e98" stroke-width="1" marker-end="url(#a1)"/><path d="M432 148 H440 V68 H448" fill="none" stroke="#a39e98" stroke-width="1" marker-end="url(#a1)"/><path d="M548 68 H556 V148 H564" fill="none" stroke="#a39e98" stroke-width="1" marker-end="url(#a1)"/><path d="M664 148 H672 V68 H680" fill="none" stroke="#a39e98" stroke-width="1" marker-end="url(#a1)"/></svg>
+        <svg viewBox="0 0 820 196" role="img" aria-labelledby="f1-t" aria-describedby="f1-d"><title id="f1-t">담당 주체별 파이프라인</title><desc id="f1-d">자동 레인과 사람 레인으로 나눈 다섯 묶음. 01 이슈 이해는 자동, 02 요구사항 확정은 사람, 03 영향도 분석은 자동, 04 수정과 승인은 사람, 05 검증과 회신은 자동이다.</desc><defs><marker id="a1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#a39e98"/></marker></defs><line x1="0" y1="28" x2="820" y2="28" stroke="rgba(0,0,0,0.07)" stroke-width="1"/><line x1="0" y1="108" x2="820" y2="108" stroke="rgba(0,0,0,0.07)" stroke-width="1"/><line x1="0" y1="188" x2="820" y2="188" stroke="rgba(0,0,0,0.07)" stroke-width="1"/><line x1="96" y1="28" x2="96" y2="188" stroke="rgba(0,0,0,0.07)" stroke-width="1"/><text x="48" y="72" text-anchor="middle" font-size="12" font-weight="600" fill="#a39e98">자동</text><text x="48" y="152" text-anchor="middle" font-size="12" font-weight="600" fill="#a39e98">사람</text><text x="160" y="20" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="10" font-weight="600" fill="#a39e98">01</text><rect x="104" y="44" width="112" height="44" rx="6" fill="#ffffff" stroke="rgba(0,0,0,0.22)" stroke-width="1"/><text x="160" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="rgba(0,0,0,0.95)">이슈 이해</text><text x="296" y="20" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="10" font-weight="600" fill="#0075de">02</text><rect x="240" y="124" width="112" height="44" rx="6" fill="#eaf3fd" stroke="#0075de" stroke-width="1.4"/><text x="296" y="152" text-anchor="middle" font-size="13" font-weight="600" fill="#0075de">요구사항 확정</text><text x="432" y="20" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="10" font-weight="600" fill="#a39e98">03</text><rect x="376" y="44" width="112" height="44" rx="6" fill="#ffffff" stroke="rgba(0,0,0,0.22)" stroke-width="1"/><text x="432" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="rgba(0,0,0,0.95)">영향도 분석</text><text x="568" y="20" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="10" font-weight="600" fill="#0075de">04</text><rect x="512" y="124" width="112" height="44" rx="6" fill="#eaf3fd" stroke="#0075de" stroke-width="1.4"/><text x="568" y="152" text-anchor="middle" font-size="13" font-weight="600" fill="#0075de">수정 · 승인</text><text x="704" y="20" text-anchor="middle" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="10" font-weight="600" fill="#a39e98">05</text><rect x="648" y="44" width="112" height="44" rx="6" fill="#ffffff" stroke="rgba(0,0,0,0.22)" stroke-width="1"/><text x="704" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="rgba(0,0,0,0.95)">검증 · 회신</text><path d="M216 68 H224 V148 H236" fill="none" stroke="#a39e98" stroke-width="1" marker-end="url(#a1)"/><path d="M352 148 H360 V68 H372" fill="none" stroke="#a39e98" stroke-width="1" marker-end="url(#a1)"/><path d="M488 68 H496 V148 H508" fill="none" stroke="#a39e98" stroke-width="1" marker-end="url(#a1)"/><path d="M624 148 H632 V68 H644" fill="none" stroke="#a39e98" stroke-width="1" marker-end="url(#a1)"/></svg>
         <figcaption>표시된 두 칸이 <b>사람이 멈춰 세우는 자리</b>다 &mdash;
         모호한 요구사항을 먼저 정리하고, 기계가 만든 수정안을 승인한다.
-        그 사이 구간은 자동으로 가고, 마지막 구간은 미리보기에서 멈춘다.</figcaption>
+        그 사이 구간은 자동으로 간다. 여섯째 묶음(실시간 신호 · 계정 · 인프라 · 챗봇)은
+        이 흐름 밖에서 항상 돌기 때문에 그리지 않았다.</figcaption>
       </figure>
     </section>
 
     <section aria-labelledby="s2">
-      <h2 id="s2"><span class="n">02</span>단계별 상태</h2>
+      <h2 id="s2"><span class="n">02</span>무엇으로 이루어져 있나</h2>
+      <p class="lead">하는 일 기준으로 묶었다. <code>원안</code> 열은 2026-05 계획의 13단계 번호다 &mdash;
+      그 번호로 이야기해 온 것을 찾을 수 있게 남겨 뒀다.</p>
       <div class="tablecard">
         <table>
-          <caption><b>표 1.</b> 13단계 현황. 상태는 완료 &middot; 부분 가동 &middot; 미구현 세 가지.</caption>
+          <caption><b>표 1.</b> 구성 항목 23개. 상태는 완료 &middot; 부분 &middot; 미구현.</caption>
           <tbody>
-        <tr class="grp"><th scope="rowgroup" colspan="4">수집·전처리</th></tr>
-        <tr><th scope="row" class="num">1</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="nm">레드마인 이슈 수집</td><td class="nt">30분 주기 증분 · 담당자·상태 변경까지</td></tr>
-        <tr><th scope="row" class="num">2</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="nm">커스텀 유형 분류</td><td class="nt">기능구분 필드 → 키워드 보완 · Type 1 / 2 전략</td></tr>
-        <tr><th scope="row" class="num">3</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="nm">임베딩 생성</td><td class="nt">유사 일감 검색용 벡터</td></tr>
-        <tr class="grp"><th scope="rowgroup" colspan="4">사람이 시작</th></tr>
-        <tr><th scope="row" class="num">4</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="nm">분류 결과 확인</td><td class="nt">업무·커스텀 유형 · AS-IS·TO-BE 버전</td></tr>
-        <tr><th scope="row" class="num">5</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="nm">소스 확보</td><td class="nt">GitLab 3단 탐색 · 실패 시 수동 경로</td></tr>
-        <tr><th scope="row" class="num">6</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="nm">신규 프로젝트 생성 질의</td><td class="nt">커스텀 프로젝트가 없을 때</td></tr>
-        <tr><th scope="row" class="num">7</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="nm">컨텍스트 조합</td><td class="nt">인터뷰를 할지 바로 계획으로 갈지 사람이 선택</td></tr>
-        <tr class="grp"><th scope="rowgroup" colspan="4">분석·수정</th></tr>
-        <tr><th scope="row" class="num">8</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="nm">영향도 분석</td><td class="nt">상태 그래프 · 호출 한도 가드 · 즉시 중단</td></tr>
-        <tr><th scope="row" class="num">9</th><td class="st"><span class="mk part" aria-hidden="true">◐</span><span class="stw part">부분 가동</span></td><td class="nm">결과 검토·수락</td><td class="nt">검토 관문을 수정 단계 승인으로 통합</td></tr>
-        <tr><th scope="row" class="num">10</th><td class="st"><span class="mk part" aria-hidden="true">◐</span><span class="stw part">부분 가동</span></td><td class="nm">코드 수정안 생성</td><td class="nt">격리 사본 · 2단계 승인 · 미리보기 고정</td></tr>
-        <tr class="grp"><th scope="rowgroup" colspan="4">빌드·회신</th></tr>
-        <tr><th scope="row" class="num">11</th><td class="st"><span class="mk part" aria-hidden="true">◐</span><span class="stw part">부분 가동</span></td><td class="nm">빌드·테스트</td><td class="nt">빌드는 가동 · 대상 소스 테스트 자동화 미완</td></tr>
-        <tr><th scope="row" class="num">12</th><td class="st"><span class="mk todo" aria-hidden="true">○</span><span class="stw todo">미구현</span></td><td class="nm">테스트 통과 판정</td><td class="nt">미구현</td></tr>
-        <tr><th scope="row" class="num">13</th><td class="st"><span class="mk part" aria-hidden="true">◐</span><span class="stw part">부분 가동</span></td><td class="nm">댓글·배포 메일</td><td class="nt">초안 생성 가동 · 자동 등록 미완</td></tr>
+        <tr class="grp"><th scope="rowgroup" colspan="4"><span class="gn">01</span>이슈를 이해한다</th></tr>
+        <tr><th scope="row" class="nm">이슈 수집</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="og">1</td><td class="nt">30분 주기 증분 · 담당자·상태 변경까지</td></tr>
+        <tr><th scope="row" class="nm">유형 분류 · 전략 결정</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="og">2</td><td class="nt">기능구분 필드 → 키워드 보완 · Type 1 / 2</td></tr>
+        <tr><th scope="row" class="nm">유사 일감 검색</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="og">3</td><td class="nt">임베딩 + 전문 검색 하이브리드</td></tr>
+        <tr><th scope="row" class="nm">첨부 파싱</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="og">—</td><td class="nt">첨부 하나가 한 작업 · 한국어 OCR 우선</td></tr>
+        <tr><th scope="row" class="nm">소스 확보</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="og">4–6</td><td class="nt">GitLab 3단 탐색 · 없으면 신규 생성 질의</td></tr>
+        <tr class="grp"><th scope="rowgroup" colspan="4"><span class="gn">02</span>요구사항을 확정한다</th></tr>
+        <tr><th scope="row" class="nm">인터뷰 여부 선택</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="og">7</td><td class="nt">사람이 정한다 · 추측 위에 계획을 세우지 않기</td></tr>
+        <tr><th scope="row" class="nm">요구사항 인터뷰</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="og">—</td><td class="nt">모호한 점을 되묻고 답을 기록한다</td></tr>
+        <tr><th scope="row" class="nm">작업 계약</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="og">—</td><td class="nt">완료 조건과 확인 방법으로 굳힌다</td></tr>
+        <tr class="grp"><th scope="rowgroup" colspan="4"><span class="gn">03</span>영향도를 분석한다</th></tr>
+        <tr><th scope="row" class="nm">분석 실행</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="og">8</td><td class="nt">Type 1 / 2 분기 · 상태 그래프 · 호출 한도 가드</td></tr>
+        <tr><th scope="row" class="nm">버전 경계 판정</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="og">—</td><td class="nt">마이그레이션 노트 · JDK 준비 여부</td></tr>
+        <tr><th scope="row" class="nm">결과 검토 · 수락</th><td class="st"><span class="mk part" aria-hidden="true">◐</span><span class="stw part">부분</span></td><td class="og">9</td><td class="nt">승인 관문을 수정 단계로 통합</td></tr>
+        <tr class="grp"><th scope="rowgroup" colspan="4"><span class="gn">04</span>코드를 고친다</th></tr>
+        <tr><th scope="row" class="nm">수정안 생성</th><td class="st"><span class="mk part" aria-hidden="true">◐</span><span class="stw part">부분</span></td><td class="og">10</td><td class="nt">격리 사본 · 외부 통신 허용목록 샌드박스</td></tr>
+        <tr><th scope="row" class="nm">승인 관문</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="og">—</td><td class="nt">미리보기 → 사람 승인 → 다음 단계</td></tr>
+        <tr><th scope="row" class="nm">필수 점검</th><td class="st"><span class="mk part" aria-hidden="true">◐</span><span class="stw part">부분</span></td><td class="og">—</td><td class="nt">버전 이관 시 확인해야 하는 항목</td></tr>
+        <tr class="grp"><th scope="rowgroup" colspan="4"><span class="gn">05</span>검증하고 내보낸다</th></tr>
+        <tr><th scope="row" class="nm">빌드 검증</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="og">11</td><td class="nt">갈 버전 환경 · 손대기 전과 비교해 새 오류만</td></tr>
+        <tr><th scope="row" class="nm">패치본 구성 · 배포 준비</th><td class="st"><span class="mk part" aria-hidden="true">◐</span><span class="stw part">부분</span></td><td class="og">—</td><td class="nt">기본 꺼둠 · 옵트인</td></tr>
+        <tr><th scope="row" class="nm">테스트 통과 판정</th><td class="st"><span class="mk todo" aria-hidden="true">○</span><span class="stw todo">미구현</span></td><td class="og">12</td><td class="nt">대상 소스 테스트 자동화가 없다</td></tr>
+        <tr><th scope="row" class="nm">댓글 · 배포 메일</th><td class="st"><span class="mk part" aria-hidden="true">◐</span><span class="stw part">부분</span></td><td class="og">13</td><td class="nt">초안 생성 가동 · 자동 등록 미완</td></tr>
+        <tr class="grp"><th scope="rowgroup" colspan="4"><span class="gn">06</span>파이프라인 밖에서 항상 도는 것</th></tr>
+        <tr><th scope="row" class="nm">실시간 신호</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="og">—</td><td class="nt">어디까지 왔는지 · 누구 차례인지 · 완료 알림</td></tr>
+        <tr><th scope="row" class="nm">AI 계정 · 대여</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="og">—</td><td class="nt">사용자별 계정으로 실행 · 시간 단위 대여</td></tr>
+        <tr><th scope="row" class="nm">운영 자동화</th><td class="st"><span class="mk part" aria-hidden="true">◐</span><span class="stw part">부분</span></td><td class="og">—</td><td class="nt">3종 등록 · 활성화 대기</td></tr>
+        <tr><th scope="row" class="nm">인프라 현황</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="og">—</td><td class="nt">VM 점유 · 도커 · 버전별 DB 스키마</td></tr>
+        <tr><th scope="row" class="nm">사내 문서 챗봇</th><td class="st"><span class="mk done" aria-hidden="true">●</span><span class="stw done">완료</span></td><td class="og">—</td><td class="nt">문서 + 함수 단위 코드 검색</td></tr>
           </tbody>
         </table>
       </div>
@@ -227,24 +243,10 @@
     </section>
 
     <section aria-labelledby="s4">
-      <h2 id="s4"><span class="n">04</span>13단계 밖에서 붙은 기능</h2>
-      <dl>
-        <div><dt>요구사항 인터뷰</dt><dd>계획을 세우기 전에 모호한 점을 사람에게 되묻는다.</dd></div>
-        <div><dt>작업 계약</dt><dd>인터뷰 결과를 완료 조건과 확인 방법으로 굳힌다.</dd></div>
-        <div><dt>2단계 승인</dt><dd>수정안 미리보기 → 사람 승인 → 필수 점검.</dd></div>
-        <div><dt>빌드 검증</dt><dd>갈 버전 환경에서, 손대기 전과 비교해 새로 생긴 오류만 본다.</dd></div>
-        <div><dt>첨부 처리</dt><dd>첨부 하나가 한 작업. 한국어 OCR 우선.</dd></div>
-        <div><dt>실시간 신호</dt><dd>어디까지 왔는지 · 누구 차례인지 · 끝났다는 알림.</dd></div>
-        <div><dt>AI 계정 대여</dt><dd>사용자별 계정으로 실행하고, 시간 단위로 빌려준다.</dd></div>
-        <div><dt>인프라·문서</dt><dd>VM 현황 · 버전별 DB 스키마 · 사내 문서 챗봇.</dd></div>
-      </dl>
-    </section>
-
-    <section aria-labelledby="s5">
-      <h2 id="s5"><span class="n">05</span>남은 과제</h2>
+      <h2 id="s4"><span class="n">04</span>남은 과제</h2>
       <ol class="todo-list">
-        <li>대상 소스의 단위·E2E 테스트 자동화 (12단계)</li>
-        <li>Redmine 댓글 자동 등록 (13단계)</li>
+        <li>대상 소스의 단위·E2E 테스트 자동화 — 이것이 없어 05 묶음이 사람 확인에 묶여 있다</li>
+        <li>Redmine 댓글 자동 등록</li>
         <li>운영 자동화 3종 활성화 — 일감 완료 · 주간 회고 · 문서 모순 탐지</li>
       </ol>
     </section>
